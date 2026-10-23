@@ -1,0 +1,25 @@
+services:
+  agent:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      WORKSPACE_DIR: /app/agent_workspace
+    volumes:
+      - ./agent_workspace:/app/agent_workspace
+    restart: unless-stopped
+
+  # 可选：网页版 VS Code，和 Agent 共用同一个工作区
+  # 启动：docker compose --profile editor up -d
+  # 打开：http://你的服务器:8080  （请务必在 .env / 环境里给 code-server 设置密码，或只走内网）
+  code-server:
+    image: codercom/code-server:latest
+    profiles: ["editor"]
+    ports:
+      - "8080:8080"
+    environment:
+      PASSWORD: ${CODE_SERVER_PASSWORD:-}
+    volumes:
+      - ./agent_workspace:/home/coder/project
+    restart: unless-stopped
