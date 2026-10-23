@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+agent_workspace/*
+!agent_workspace/.gitkeep
+!agent_workspace/README.md
