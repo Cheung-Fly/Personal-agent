@@ -8,8 +8,12 @@
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
-<!-- TODO: 发布后把这里换成演示 GIF：录一段「在网页里让 Agent 写一个脚本并跑出结果」的 30 秒操作 -->
-<!-- Demo GIF goes here -->
+## 演示 / Demo
+
+![Demo: the agent writes hello.py, hits an error, fixes it itself, and runs it successfully](docs/demo.gif)
+
+> 真实运行记录：Agent 写下 `hello.py`，第一次运行失败后自己换 `python3` 重试成功。
+> Recorded from a real run: the agent writes `hello.py`, fails once, corrects itself, and succeeds.
 
 ## Why / 为什么做这个
 
