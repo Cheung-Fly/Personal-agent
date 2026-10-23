@@ -47,7 +47,7 @@ Full design notes: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)（中文）
 
 ```bash
 git clone https://github.com/Cheung-Fly/Personal-agent.git
-cd personal-agent
+cd Personal-agent
 cp .env.example .env   # fill in LLM_API_KEY / LLM_BASE_URL / LLM_MODEL / ACCESS_TOKEN
 docker compose up -d --build
 # open http://localhost:8000
