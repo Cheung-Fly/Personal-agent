@@ -28,14 +28,32 @@ async function send(){
   const text = input.value.trim(); if(!text) return; input.value='';
   add(text,'user');
   let token = localStorage.getItem('access_token')||'';
-  let res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:JSON.stringify({message:text,history})});
+  let res = await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:JSON.stringify({message:text,history})});
   if(res.status===401){ token = prompt('服务器设置了 ACCESS_TOKEN，请输入：')||''; localStorage.setItem('access_token',token);
-    res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:JSON.stringify({message:text,history})}); }
-  const data = await res.json();
-  if(!res.ok){ add('出错：'+(data.detail||res.status),''); return; }
-  (data.tool_log||[]).forEach(t=>add('🔧 '+t.tool+' '+JSON.stringify(t.args),'tool'));
-  add(data.reply,'');
-  history.push({role:'user',content:text},{role:'assistant',content:data.reply});
+    res = await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:JSON.stringify({message:text,history})}); }
+  if(!res.ok){ const data = await res.json().catch(()=>({})); add('出错：'+(data.detail||res.status),''); return; }
+  // 流式消费：token 事件逐字追加到当前气泡，tool 事件实时插日志，done 收尾。
+  // 气泡在第一个 token 到达时才创建，这样工具日志自然排在最终回复前面。
+  let bubble = null;
+  const ensureBubble = ()=>{ if(!bubble){ bubble = document.createElement('div'); bubble.className='msg'; log.appendChild(bubble); } return bubble; };
+  let reply = '';
+  const reader = res.body.getReader(), decoder = new TextDecoder(); let buf = '';
+  const handle = ev=>{
+    if(ev.type==='token'){ reply += ev.text; ensureBubble().textContent = reply; window.scrollTo(0,document.body.scrollHeight); }
+    else if(ev.type==='tool'){ add('🔧 '+ev.tool+' '+JSON.stringify(ev.args),'tool'); }
+    else if(ev.type==='tool_result'){ add('↳ '+ev.tool+'：'+ev.result.slice(0,200),'tool'); }
+    else if(ev.type==='error'){ add('出错：'+ev.detail,''); }
+    else if(ev.type==='done'){ reply = ev.reply; ensureBubble().textContent = reply; history.push({role:'user',content:text},{role:'assistant',content:reply}); }
+  };
+  while(true){
+    const {done, value} = await reader.read(); if(done) break;
+    buf += decoder.decode(value, {stream:true});
+    let idx;
+    while((idx = buf.indexOf('\n\n')) >= 0){
+      const chunk = buf.slice(0, idx); buf = buf.slice(idx + 2);
+      for(const line of chunk.split('\n')) if(line.startsWith('data:')) handle(JSON.parse(line.slice(5)));
+    }
+  }
 }
 document.getElementById('send').onclick = send;
 input.onkeydown = e=>{ if(e.key==='Enter') send(); };
