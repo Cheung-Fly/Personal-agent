@@ -87,7 +87,7 @@ Check it's alive: `curl http://localhost:8000/health`
 ## Roadmap / 路线图
 
 - [x] v0.1 Agent loop + sandboxed file/shell tools + web chat
-- [ ] Streaming responses (SSE) with live tool logs
+- [x] v0.2 Streaming responses (SSE) with live tool logs
 - [ ] Persistent sessions (SQLite) + long-term memory file
 - [ ] Approval cards for high-risk tools
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
