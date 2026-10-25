@@ -29,6 +29,7 @@ an LLM that **decides**, a runtime that **orchestrates**, and tools that **act**
 - **Server-side tools** — `list_files` / `read_file` / `write_file` / `exec_command` / 在服务器上读写文件、执行命令
 - **Sandboxed workspace** — path-traversal protection, command timeout, output truncation / 路径沙箱校验、命令超时、输出截断
 - **Model-agnostic** — any OpenAI-compatible API with tool calling (Muse / OpenAI / DeepSeek / Qwen…) / 任意支持 tool calling 的兼容接口，改配置即换模型
+- **Persistent sessions (SQLite)** — refresh or restart and history is still there; server-generated session id, last 20 rounds loaded per request / 会话持久化：刷新、重启都不丢历史
 - **Access token auth** + Docker deployment, optional web VS Code (code-server) side-by-side / 口令鉴权、Docker 一键部署、可选网页版 VS Code
 
 ## Architecture / 架构
@@ -76,6 +77,8 @@ Check it's alive: `curl http://localhost:8000/health`
 | `LLM_MODEL` | Model name that supports tool calling |
 | `ACCESS_TOKEN` | Password for `/api/chat` — **set this before exposing the server** / 暴露到公网前必须设置 |
 | `WORKSPACE_DIR` | Where the agent may work (default `./agent_workspace`) |
+| `DATA_DIR` | Where the SQLite session DB lives (default `./data`, file `agent.db`) |
+| `HISTORY_ROUNDS` | Most recent rounds loaded per request (default `20`) |
 | `MAX_TOOL_ROUNDS` | Agent loop limit (default `12`) |
 
 ## Security / 安全
@@ -88,7 +91,8 @@ Check it's alive: `curl http://localhost:8000/health`
 
 - [x] v0.1 Agent loop + sandboxed file/shell tools + web chat
 - [x] v0.2 Streaming responses (SSE) with live tool logs
-- [ ] Persistent sessions (SQLite) + long-term memory file
+- [x] v0.3 Persistent sessions (SQLite)
+- [ ] Long-term memory file
 - [ ] Approval cards for high-risk tools
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
