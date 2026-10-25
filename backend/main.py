@@ -9,6 +9,13 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from .storage import (
+    DEFAULT_HISTORY_ROUNDS,
+    ensure_session,
+    list_sessions,
+    load_history,
+    save_message,
+)
 from .tools import TOOL_SCHEMAS, run_tool
 
 load_dotenv()
@@ -29,6 +36,15 @@ app = FastAPI()
 class ChatIn(BaseModel):
     message: str
     history: list[dict] = []  # [{"role": "user"/"assistant", "content": "..."}]
+    session_id: str | None = None  # 带上则走服务端会话（优先用库里的历史）
+
+
+def _resolve_context(body: ChatIn, session_id: str) -> list[dict]:
+    """组装本轮上下文：带 session_id 时以服务端库里的最近 N 轮为准，
+    否则用前端传来的 history（老用法兼容）。"""
+    if body.session_id:
+        return load_history(session_id, rounds=DEFAULT_HISTORY_ROUNDS)
+    return body.history
 
 
 async def call_llm(messages: list[dict]) -> dict:
@@ -53,8 +69,13 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
         raise HTTPException(status_code=401, detail="ACCESS_TOKEN 不正确或缺失")
     if not LLM_API_KEY:
         raise HTTPException(status_code=500, detail="服务器未配置 LLM_API_KEY，请在 .env 中填写")
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}, *body.history,
+    # 会话：没带 session_id 就新建一个（不污染已有会话）。
+    # 顺序注意：先按库里历史组装上下文，再把本轮 user 落库——
+    # 反过来会把本轮 user 在上下文里存两份。
+    session_id = ensure_session(body.session_id, title_hint=body.message)
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}, *_resolve_context(body, session_id),
                 {"role": "user", "content": body.message}]
+    save_message(session_id, "user", body.message)
     tool_log = []
     for _ in range(MAX_ROUNDS):
         try:
@@ -64,13 +85,17 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
         messages.append(msg)
         tool_calls = msg.get("tool_calls") or []
         if not tool_calls:  # 没有工具调用 = 最终回复
-            return {"reply": msg.get("content") or "", "tool_log": tool_log}
+            reply = msg.get("content") or ""
+            save_message(session_id, "assistant", reply)
+            return {"reply": reply, "tool_log": tool_log, "session_id": session_id}
         for call in tool_calls:
             args = json.loads(call["function"]["arguments"] or "{}")
             result = run_tool(call["function"]["name"], args)
             tool_log.append({"tool": call["function"]["name"], "args": args, "result": result[:500]})
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": result})
-    return {"reply": "已达到最大工具轮数，任务暂停，请检查进度。", "tool_log": tool_log}
+    reply = "已达到最大工具轮数，任务暂停，请检查进度。"
+    save_message(session_id, "assistant", reply)
+    return {"reply": reply, "tool_log": tool_log, "session_id": session_id}
 
 
 def _sse(payload: dict) -> str:
@@ -78,16 +103,22 @@ def _sse(payload: dict) -> str:
     return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
-async def stream_agent(body: ChatIn):
+async def stream_agent(body: ChatIn, session_id: str):
     """Agent 循环的流式版：token 增量实时发，工具调用先攒齐再执行。
 
     关键点：流式返回里 tool_calls 是按 index 拆成多个 delta 到达的，
     必须先把同一 index 的 id / name / arguments 拼完整，才能执行；
     边收边执行会拿到残缺参数。reasoning_content（思考过程）不在
     content 字段里，忽略即可，不影响正文流。
+
+    持久化：user 在组装完上下文后、进循环前落库；assistant 最终回复在
+    done 时落库，中途失败不写 assistant，避免半截回复污染下一轮。
     """
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}, *body.history,
+    yield _sse({"type": "session", "session_id": session_id})
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}, *_resolve_context(body, session_id),
                 {"role": "user", "content": body.message}]
+    # 顺序注意：先组装上下文再落库，否则本轮 user 会在上下文里出现两次。
+    save_message(session_id, "user", body.message)
     for _ in range(MAX_ROUNDS):
         content_parts: list[str] = []
         calls: dict[int, dict] = {}
@@ -132,7 +163,9 @@ async def stream_agent(body: ChatIn):
                          "content": "".join(content_parts) or None,
                          "tool_calls": tool_calls or None})
         if not tool_calls:
-            yield _sse({"type": "done", "reply": "".join(content_parts)})
+            reply = "".join(content_parts)
+            save_message(session_id, "assistant", reply)
+            yield _sse({"type": "done", "reply": reply, "session_id": session_id})
             return
         for call in tool_calls:
             args = json.loads(call["function"]["arguments"] or "{}")
@@ -141,7 +174,9 @@ async def stream_agent(body: ChatIn):
             yield _sse({"type": "tool_result", "tool": call["function"]["name"],
                         "result": result[:500]})
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": result})
-    yield _sse({"type": "done", "reply": "已达到最大工具轮数，任务暂停，请检查进度。"})
+    reply = "已达到最大工具轮数，任务暂停，请检查进度。"
+    save_message(session_id, "assistant", reply)
+    yield _sse({"type": "done", "reply": reply, "session_id": session_id})
 
 
 @app.post("/api/chat/stream")
@@ -150,7 +185,27 @@ async def chat_stream(body: ChatIn, x_access_token: str = Header(default="")):
         raise HTTPException(status_code=401, detail="ACCESS_TOKEN 不正确或缺失")
     if not LLM_API_KEY:
         raise HTTPException(status_code=500, detail="服务器未配置 LLM_API_KEY，请在 .env 中填写")
-    return StreamingResponse(stream_agent(body), media_type="text/event-stream")
+    # 会话：没带 session_id 就新建一个（不污染已有会话）。
+    # user 的落库在 stream_agent 里、组装完上下文后做（见上）。
+    session_id = ensure_session(body.session_id, title_hint=body.message)
+    return StreamingResponse(stream_agent(body, session_id), media_type="text/event-stream")
+
+
+@app.get("/api/sessions")
+async def sessions_list(x_access_token: str = Header(default="")):
+    if ACCESS_TOKEN and x_access_token != ACCESS_TOKEN:
+        raise HTTPException(status_code=401, detail="ACCESS_TOKEN 不正确或缺失")
+    return {"sessions": list_sessions()}
+
+
+@app.get("/api/sessions/{session_id}/messages")
+async def session_messages(session_id: str, x_access_token: str = Header(default="")):
+    if ACCESS_TOKEN and x_access_token != ACCESS_TOKEN:
+        raise HTTPException(status_code=401, detail="ACCESS_TOKEN 不正确或缺失")
+    history = load_history(session_id, rounds=DEFAULT_HISTORY_ROUNDS)
+    if not history:
+        raise HTTPException(status_code=404, detail="会话不存在或没有消息")
+    return {"session_id": session_id, "messages": history}
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
