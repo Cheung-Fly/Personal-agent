@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend ./backend
 COPY static ./static
-RUN useradd -m agent && mkdir -p /app/agent_workspace && chown -R agent:agent /app
+RUN useradd -m agent && mkdir -p /app/agent_workspace /app/data && chown -R agent:agent /app
 USER agent
 ENV WORKSPACE_DIR=/app/agent_workspace
 EXPOSE 8000
