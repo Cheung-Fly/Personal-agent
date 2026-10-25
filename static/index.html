@@ -23,14 +23,31 @@
 <script>
 const log = document.getElementById('log'), input = document.getElementById('in');
 let history = [];
+let sessionId = localStorage.getItem('session_id') || '';
 function add(text, cls){ const d=document.createElement('div'); d.className='msg '+cls; d.textContent=text; log.appendChild(d); window.scrollTo(0,document.body.scrollHeight); }
+// v0.3 会话恢复：启动时按 localStorage 里的 session_id 拉最近 N 轮，
+// 重建气泡与 history；会话不存在（404）就清掉旧 id、从新会话开始。
+async function restore(){
+  if(!sessionId) return;
+  const token = localStorage.getItem('access_token')||'';
+  const res = await fetch('/api/sessions/'+encodeURIComponent(sessionId)+'/messages',{headers:{'x-access-token':token}});
+  if(res.status===404){ sessionId=''; localStorage.removeItem('session_id'); return; }
+  if(!res.ok) return; // 401 等情况先跳过，下次发送时再鉴权
+  const data = await res.json();
+  history = data.messages || [];
+  for(const m of history) add(m.content, m.role==='user' ? 'user' : '');
+}
+restore();
 async function send(){
   const text = input.value.trim(); if(!text) return; input.value='';
   add(text,'user');
   let token = localStorage.getItem('access_token')||'';
-  let res = await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:JSON.stringify({message:text,history})});
+  const body = ()=>JSON.stringify({message:text, history, session_id: sessionId || undefined});
+  let res = await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:body()});
   if(res.status===401){ token = prompt('服务器设置了 ACCESS_TOKEN，请输入：')||''; localStorage.setItem('access_token',token);
-    res = await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:JSON.stringify({message:text,history})}); }
+    res = await fetch('/api/chat/stream',{method:'POST',headers:{'Content-Type':'application/json','x-access-token':token},body:body()}); }
+  // 注意：启动时若因 401 跳过了会话恢复，本轮只保证服务端上下文正确
+  // （session_id 已带上），旧气泡下次刷新（token 已存好）再恢复。
   if(!res.ok){ const data = await res.json().catch(()=>({})); add('出错：'+(data.detail||res.status),''); return; }
   // 流式消费：token 事件逐字追加到当前气泡，tool 事件实时插日志，done 收尾。
   // 气泡在第一个 token 到达时才创建，这样工具日志自然排在最终回复前面。
@@ -39,11 +56,12 @@ async function send(){
   let reply = '';
   const reader = res.body.getReader(), decoder = new TextDecoder(); let buf = '';
   const handle = ev=>{
-    if(ev.type==='token'){ reply += ev.text; ensureBubble().textContent = reply; window.scrollTo(0,document.body.scrollHeight); }
+    if(ev.type==='session'){ sessionId = ev.session_id; localStorage.setItem('session_id', sessionId); }
+    else if(ev.type==='token'){ reply += ev.text; ensureBubble().textContent = reply; window.scrollTo(0,document.body.scrollHeight); }
     else if(ev.type==='tool'){ add('🔧 '+ev.tool+' '+JSON.stringify(ev.args),'tool'); }
     else if(ev.type==='tool_result'){ add('↳ '+ev.tool+'：'+ev.result.slice(0,200),'tool'); }
     else if(ev.type==='error'){ add('出错：'+ev.detail,''); }
-    else if(ev.type==='done'){ reply = ev.reply; ensureBubble().textContent = reply; history.push({role:'user',content:text},{role:'assistant',content:reply}); }
+    else if(ev.type==='done'){ reply = ev.reply; ensureBubble().textContent = reply; if(ev.session_id){ sessionId = ev.session_id; localStorage.setItem('session_id', sessionId); } history.push({role:'user',content:text},{role:'assistant',content:reply}); }
   };
   while(true){
     const {done, value} = await reader.read(); if(done) break;
