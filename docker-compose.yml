@@ -6,8 +6,10 @@ services:
     env_file: .env
     environment:
       WORKSPACE_DIR: /app/agent_workspace
+      DATA_DIR: /app/data
     volumes:
       - ./agent_workspace:/app/agent_workspace
+      - ./data:/app/data
     restart: unless-stopped
 
   # 可选：网页版 VS Code，和 Agent 共用同一个工作区
