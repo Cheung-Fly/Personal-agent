@@ -44,7 +44,7 @@
 ## 3. 一次请求的时序
 
 1. 浏览器 POST /api/chat {message, history}
-2. 编排层组装 messages = [system, ...history, user]
+2. 编排层组装 messages = [system, memory（有 MEMORY.md 时）, ...history, user]
 3. 调用模型 API（带 tools schema）
 4. 模型返回：
    - 纯文本 → 作为最终回复返回浏览器，结束
@@ -59,7 +59,7 @@
 | 对话历史 | 前端内存（v1） | 刷新即丢；v2 落 SQLite |
 | 代码/文件 | agent_workspace/ 卷 | Docker 重启不丢，AI 只能动这里 |
 | 配置/密钥 | .env（不进 Git） | LLM_API_KEY、BASE_URL、MODEL、ACCESS_TOKEN |
-| 长期记忆 | agent_workspace/MEMORY.md（预留） | v2 由编排层注入上下文 |
+| 长期记忆 | agent_workspace/MEMORY.md | v0.4 已接入，每次请求作为第二条 system 消息注入（上限 2000 字符，手动编辑） |
 
 ## 5. 安全设计
 
@@ -84,7 +84,7 @@
 ## 7. 扩展路线
 
 - v1.1 流式输出 SSE + 工具日志实时推送
-- v1.2 会话持久化 SQLite + MEMORY.md 长期记忆注入
+- v1.2 会话持久化 SQLite（v0.3 ✓）+ MEMORY.md 长期记忆注入（v0.4 ✓）
 - v1.3 审批卡：exec / 删除类工具执行前前端确认
 - v2.0 工具层改 MCP Server，工具可被任意 MCP 客户端复用；增加 git、Playwright 浏览器、cron 定时工具
 - v2.1 Tauri 打包桌面客户端（内嵌网页，连接远程后端）
