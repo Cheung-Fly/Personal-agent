@@ -78,6 +78,11 @@ def run_tool(name: str, args: dict) -> str:
             return _safe_path(args["path"]).read_text(encoding="utf-8")[:20000]
         if name == "write_file":
             p = _safe_path(args["path"])
+            # v0.4 只开手动入口：长期记忆 MEMORY.md 请手动编辑，Agent
+            # 不能直接改写（放开自动写等于 Agent 能改自己的记忆，写错会
+            # 污染以后所有对话；这个口子留给审批分级那版再开）。
+            if p == WORKSPACE / "MEMORY.md":
+                return "工具执行失败: 长期记忆 MEMORY.md 请手动编辑，Agent 不能直接改写（v0.4 只开手动入口）"
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(args["content"], encoding="utf-8")
             return f"已写入 {args['path']} ({len(args['content'])} 字符)"
