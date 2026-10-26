@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from .memory import memory_system_message
 from .storage import (
     DEFAULT_HISTORY_ROUNDS,
     ensure_session,
@@ -47,6 +48,21 @@ def _resolve_context(body: ChatIn, session_id: str) -> list[dict]:
     return body.history
 
 
+def _build_messages(body: ChatIn, session_id: str) -> list[dict]:
+    """组装发给模型的完整上下文：[system, memory?, *history, user]。
+
+    memory 是第二条 system 消息（v0.4 长期记忆，有 MEMORY.md 才有）；
+    history 按 _resolve_context 来。/api/chat 与 stream_agent 共用，
+    避免两处组装口径漂移。"""
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    memory = memory_system_message()
+    if memory:
+        messages.append(memory)
+    messages.extend(_resolve_context(body, session_id))
+    messages.append({"role": "user", "content": body.message})
+    return messages
+
+
 async def call_llm(messages: list[dict]) -> dict:
     async with httpx.AsyncClient(timeout=120) as client:
         r = await client.post(
@@ -73,8 +89,7 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
     # 顺序注意：先按库里历史组装上下文，再把本轮 user 落库——
     # 反过来会把本轮 user 在上下文里存两份。
     session_id = ensure_session(body.session_id, title_hint=body.message)
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}, *_resolve_context(body, session_id),
-                {"role": "user", "content": body.message}]
+    messages = _build_messages(body, session_id)
     save_message(session_id, "user", body.message)
     tool_log = []
     for _ in range(MAX_ROUNDS):
@@ -115,8 +130,7 @@ async def stream_agent(body: ChatIn, session_id: str):
     done 时落库，中途失败不写 assistant，避免半截回复污染下一轮。
     """
     yield _sse({"type": "session", "session_id": session_id})
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}, *_resolve_context(body, session_id),
-                {"role": "user", "content": body.message}]
+    messages = _build_messages(body, session_id)
     # 顺序注意：先组装上下文再落库，否则本轮 user 会在上下文里出现两次。
     save_message(session_id, "user", body.message)
     for _ in range(MAX_ROUNDS):
