@@ -1,5 +1,32 @@
 # Changelog
 
+## v0.4.0 — 2026-10-26
+
+Long-term memory: a single `agent_workspace/MEMORY.md` file, injected as a
+second system message on every request.
+
+- New `backend/memory.py` (stdlib only, no new dependencies): reads
+  `agent_workspace/MEMORY.md` fresh on every request (no cache, so an edit
+  takes effect on the next message) and injects it after `SYSTEM_PROMPT`,
+  before history — `[system, memory, *history, user]`. Two-tier memory:
+  SQLite holds the short-term session (last 20 rounds), `MEMORY.md` holds
+  long-term preferences. Injection is capped at ~2000 characters
+  (`MEMORY_MAX_CHARS`, default 2000); a missing or empty file means no
+  injection and no error, behaving exactly like v0.3.
+- Manual edit only: the agent does not auto-write memory. `write_file`
+  targeting `MEMORY.md` is refused by the tool layer ("please edit it
+  manually"), so a mistaken model write cannot pollute every future
+  conversation. Auto-write stays closed until the approval-tier version.
+- `MEMORY.md` ships with a starter file (Chinese replies, FastAPI +
+  Zhipu GLM-4.6) and is tracked in git (`.gitignore` now excepts it —
+  the old `agent_workspace/*` rule would have silently ignored it).
+- Verified: pytest 13 passed (7 existing + 6 new memory tests: missing /
+  empty file, injection content, truncation at the cap, the write guard,
+  and the `[system, memory, *history, user]` order); mock-LLM
+  end-to-end checks passed (streaming and non-streaming both inject the
+  memory as the second system message; deleting the file restores
+  v0.3 behavior with no memory message; the write guard holds live).
+
 ## v0.3.0 — 2026-10-25
 
 Persistent sessions (SQLite). Refresh the page or restart the server and
