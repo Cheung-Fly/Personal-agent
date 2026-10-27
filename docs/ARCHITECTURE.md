@@ -1,1 +1,92 @@
-IyDmlbTkvZPmnrbmnoTorr7orqEg4oCU4oCUIFBlcnNvbmFsIEFnZW50IHYxCgojIyAxLiDnm67moIfkuI7ovrnnlYwKCi0g55So5oi36YCa6L+H572R6aG177yI5ZCO57ut5Y+vIFRhdXJpL0VsZWN0cm9uIOWll+Wjs+aIkOahjOmdoueoi+W6j++8ieWSjCBBSSDlr7nor53jgIIKLSBBSSDlnKjnlKjmiLfoh6rlt7HnmoTmnI3liqHlmajkuIrlt6XkvZzvvJror7sv5YaZ5Luj56CB44CB5omn6KGM5ZG95Luk44CB6LeR5rWL6K+V44CB5YGa6Ieq5Yqo5YyW44CCCi0gQUkg5pys6Lqr5LiN55u05o6l5o6l6Kem5pyN5Yqh5Zmo77ya5omA5pyJ5Yqo5L2c5b+F6aG757uP5bel5YW35bGCICsg5p2D6ZmQ5bGC77yM55WZ55eV44CB5Y+v5oum5oiq44CCCi0g5qih5Z6L5Y+v5pu/5o2i77ya5Y+q5L6d6LWWIE9wZW5BSS1jb21wYXRpYmxlIOeahCBDaGF0IENvbXBsZXRpb25zICsgVG9vbCBDYWxsaW5nIOaOpeWPo+OAggoKIyMgMi4g5YiG5bGC5p625p6ECgpgYGAK4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAg6KGo546w5bGCIFByZXNlbnRhdGlvbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICDilIIK4pSCICBzdGF0aWMvaW5kZXguaHRtbCAg5Y2V6aG16IGK5aSp77ya5raI5oGv5rWBICsg5bel5YW36LCD55So5pel5b+X5bGV56S6ICAgIOKUggrilIIgICjlkI7nu606IFNTRSDmtYHlvI/jgIHlrqHmibnlvLnnqpfjgIFjb2RlLXNlcnZlciDnvZHpobXnvJbovpHlmajlubbmjpIpICAgIOKUggrilJTilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilKzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJgKICAgICAgICAgICAgICAgICAgICAgICDilIIgSFRUUCAgUE9TVCAvYXBpL2NoYXQgICBHRVQgL2hlYWx0aArilIzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAK4pSCICDnvJbmjpLlsYIgT3JjaGVzdHJhdGlvbiAgICAgICAgYmFja2VuZC9tYWluLnB5IChGYXN0QVBJKSAgIOKUggrilIIgIC0g5ou85LiK5LiL5paHOiBTeXN0ZW0gUHJvbXB0ICsg5Y6G5Y+yICsg5bel5YW3IFNjaGVtYSAgICAgICAgICDilIIK4pSCICAtIEFnZW50IExvb3A6IOiwg+aooeWeiyDihpIg5pyJIHRvb2xfY2FsbCDlsLHmiafooYwg4oaSIOWbnuWWgue7k+aenCAgICDilIIK4pSCICAgIOKGkiDlho3osIPmqKHlnosg4oCmIOebtOWIsOaXoCB0b29sX2NhbGwg5oiW6L6+IE1BWF9UT09MX1JPVU5EUyAgICAg4pSCCuKUgiAgLSDpibTmnYM6IEFDQ0VTU19UT0tFTiAo5Y+v6YCJKSAvIOi2heaXtiAvIOi9ruaVsOS4iumZkCAgICAgICAgICAgIOKUggrilJTilIDilIDilIDilIDilIDilIDilIDilKzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilKzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJgKICAgICAgICDilIIgdG9vbF9jYWxsIChKU09OKSAgICAgICAgICAgICAgIOKUgiBIVFRQUwrilIzilIDilIDilIDilIDilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAgICDilIzilIDilIDilIDilIDilIDilIDilIDilIDilIDilrzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAK4pSCICDlt6XlhbflsYIgVG9vbHMgICAgICAgICAgICAg4pSCICAg4pSCICDmqKHlnovlsYIgTExNICjlpJbpg6ggQVBJKSAgICDilIIK4pSCICBiYWNrZW5kL3Rvb2xzLnB5ICAgICAgICDilIIgICDilIIgIE11c2UgLyBPcGVuQUkgLyBEZWVwU2VlayDilIIK4pSCICBsaXN0X2ZpbGVzIC8gcmVhZF9maWxlICDilIIgICDilIIgIC8gUXdlbiAvIE1vb25zaG90IOKApiAgICAgIOKUggrilIIgIHdyaXRlX2ZpbGUgLyBleGVjX2NtZCAgIOKUgiAgIOKUgiAg5Y+q5YGa5o6o55CG5LiO5Yaz562W77yM5LiN5omn6KGMICAgIOKUggrilIIgIC0g6Lev5b6E5rKZ566x5qCh6aqMICAgICAgICAgICDilIIgICDilJTilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJgK4pSCICAtIOWRveS7pOi2heaXtiA2MHMgLyDovpPlh7rmiKrmlq0g4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogICAgICAgIOKUgiDku4XlhYHorrjorr/pl64K4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pa84pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAg5omn6KGM546v5aKDIFNhbmRib3ggICAgICAgICDilIIK4pSCICBhZ2VudF93b3Jrc3BhY2UvICjljbcpICAg4pSCCuKUgiAgRG9ja2VyIOWuueWZqCAvIOS9juadg+eUqOaItyAgIOKUggrilIIgIOS7o+eggeOAgeaVsOaNruOAgU1FTU9SWS5tZCAgICDilIIK4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSYCmBgYAoKIyMgMy4g5LiA5qyh6K+35rGC55qE5pe25bqPCgoxLiDmtY/op4jlmaggUE9TVCAvYXBpL2NoYXQge21lc3NhZ2UsIGhpc3Rvcnl9CjIuIOe8luaOkuWxgue7hOijhSBtZXNzYWdlcyA9IFtzeXN0ZW0sIG1lbW9yee+8iOaciSBNRU1PUlkubWQg5pe277yJLCAuLi5oaXN0b3J5LCB1c2VyXQozLiDosIPnlKjmqKHlnosgQVBJ77yI5bimIHRvb2xzIHNjaGVtYe+8iQo0LiDmqKHlnovov5Tlm57vvJoKICAgLSDnuq/mlofmnKwg4oaSIOS9nOS4uuacgOe7iOWbnuWkjei/lOWbnua1j+iniOWZqO+8jOe7k+adnwogICAtIHRvb2xfY2FsbHMg4oaSIOe8luaOkuWxgumAkOS4quiwg+eUqOW3peWFt+WxguaJp+ihjO+8jOaKiiB7cm9sZTogdG9vbCwgY29udGVudDog57uT5p6cfSDov73liqDliLAgbWVzc2FnZXPvvIzlm57liLDnrKwgMyDmraUKNS4g5bel5YW35oql6ZSZ5LiN5Lit5pat77ya6ZSZ6K+v5paH5pys5ZCM5qC35Zue5ZaC77yM5qih5Z6L6Ieq6KGM5L+u5q2j6YeN6K+VCjYuIOi2hei/hyBNQVhfVE9PTF9ST1VORFPvvIjpu5jorqQgMTLvvInlvLrliLbmmoLlgZzvvIzpmLLmraLmrbvlvqrnjq/ng6cgdG9rZW4KCiMjIDQuIOaVsOaNruS4jueKtuaAgQoKfCDmlbDmja4gfCDlrZjmlL4gfCDor7TmmI4gfAp8LS0tfC0tLXwtLS18Cnwg5a+56K+d5Y6G5Y+yIHwg5YmN56uv5YaF5a2Y77yIdjHvvIkgfCDliLfmlrDljbPkuKLvvJt2MiDokL0gU1FMaXRlIHwKfCDku6PnoIEv5paH5Lu2IHwgYWdlbnRfd29ya3NwYWNlLyDljbcgfCBEb2NrZXIg6YeN5ZCv5LiN5Lii77yMQUkg5Y+q6IO95Yqo6L+Z6YeMIHwKfCDphY3nva4v5a+G6ZKlIHwgLmVudu+8iOS4jei/myBHaXTvvIkgfCBMTE1fQVBJX0tFWeOAgUJBU0VfVVJM44CBTU9ERUzjgIFBQ0NFU1NfVE9LRU4gfAp8IOmVv+acn+iusOW/hiB8IGFnZW50X3dvcmtzcGFjZS9NRU1PUlkubWQgfCB2MC40IOW3suaOpeWFpe+8jOavj+asoeivt+axguS9nOS4uuesrOS6jOadoSBzeXN0ZW0g5raI5oGv5rOo5YWl77yI5LiK6ZmQIDIwMDAg5a2X56ym77yM5omL5Yqo57yW6L6R77yJ77ybdjAuNSDotbcgQWdlbnQg5Y+v5o+Q6K6u5pS55YaZ77yM5L2G6aG757uP5a6h5om55Y2h56Gu6K6k5omN6JC955uYIHwKfCDlrqHorqHml6Xlv5cgfCBkYXRhL2F1ZGl0LmxvZ++8iEpTT04gTGluZXPvvIzkuI3ov5sgZ2l077yJIHwgdjAuNe+8muavj+asoeW3peWFt+iwg+eUqOiusOS4gOihjO+8iOaXtumXtOOAgeS8muivneOAgeW3peWFt+OAgeWPguaVsOaRmOimgeOAgemjjumZqee6p+OAgemAmui/hy/mi5Lnu50v6Ieq5Yqo44CB57uT5p6c5pGY6KaB77yJIHwKCiMjIDUuIOWuieWFqOiuvuiuoQoKLSAqKuaymeeusSoq77ya6Lev5b6EIHJlc29sdmUg5ZCO5b+F6aG75ZyoIFdPUktTUEFDRSDlhoXvvIxgLi4vYCDnqb/otornm7TmjqXmi5Lnu53vvIjlt7Llrp7mtYvvvInjgIIKLSAqKuWuueWZqOmalOemuyoq77ya55Sf5Lqn6YOo572y55SoIGRvY2tlci1jb21wb3Nl77yM5ZCO56uv6LeR5Zyo5a655Zmo6YeM77yM5Y2z5L2/5ZG95Luk5aSx5o6n5Lmf5Ye65LiN5LqG5a655ZmoICsg5Y2355qE6IyD5Zu044CCCi0gKirorr/pl67mjqfliLYqKu+8muiuvue9riBBQ0NFU1NfVE9LRU4g5ZCO77yML2FwaS9jaGF0IOW/hemhu+W4piBgeC1hY2Nlc3MtdG9rZW5gIOivt+axguWktO+8m+WFrOe9kemDqOe9suWGjeWPoOWKoOWPjeWQkeS7o+eQhiBIVFRQU+OAguayoeaciemJtOadg+aXtuWPquW6lOe7keWumuWGhee9kS9WUE7jgIIKLSAqKui1hOa6kOmZkOWItioq77ya5ZG95LukIDYwIOenkui2heaXtuOAgei+k+WHuuaIquaWreOAgeW3peWFt+i9ruaVsOS4iumZkOOAggotICoq5a6h5om55YiG57qn77yIdjAuNe+8iSoq77ya5bel5YW36LCD55So5YWI5YiG57qn5YaN5omn6KGM4oCU4oCU5Y+q6K+777yIbGlzdC9yZWFk44CBbHMvY2F044CBZ2l0IHN0YXR1cy9kaWZm44CBcHl0ZXN077yJ6Ieq5Yqo5omn6KGM77yb5pS55Yqo77yI6KaG55uW5bey5pyJ5paH5Lu244CB6LeR5Luj56CB44CBZ2l0IGNvbW1pdOOAgeWGmSBNRU1PUlkubWTvvInlvLkgU1NFIOWuoeaJueWNoeetieeUqOaIt+eCueS4gOasoe+8jOmAmui/h+WPquaUvuihjOi/meS4gOasoe+8jDUg5YiG6ZKf5LiN54K55oyJ5ouS57ud77yb6auY5Y2x77yIcm3jgIFzdWRv44CBY2htb2QgNzc344CB5LiL6L295ZCO55u05o6l5omn6KGM44CBLmVudi8ucGVt77yJ6buY6K6k5ouS57ud44CB5Y2h5LiK5Lmf5LiN57uZ6L+H44CC5Yik5a6a5piv5ZCv5Y+R5byP77yI56ys5LiA5q61IHRva2VuICsg5Y2x6ZmpIGZsYWfvvIzkuLLogZTlkb3ku6TljYfkuIDnuqfvvInvvIzkuI3mmK/lvaLlvI/ljJbpqozor4HvvIznnJ/mraPnmoTlhZzlupXov5jmmK/lrrnlmaggKyDmspnnrrHjgIIKLSAqKuWuoeiuoeaXpeW/l++8iHYwLjXvvIkqKu+8muavj+asoeW3peWFt+iwg+eUqOiusOS4gOihjCBKU09OIExpbmVzIOWIsCBgZGF0YS9hdWRpdC5sb2dg77yI5LiN6L+bIGdpdO+8ie+8jOWPr+ebtOaOpSBncmVwIOafpeKAnOaooeWei+mDveWKqOi/h+WTquS6m+aWh+S7tuKAneOAggoKIyMgNi4g6YOo572y5ouT5omRCgpgYGAK55So5oi35rWP6KeI5ZmoIOKUgOKUgEhUVFBTL+WGhee9keKUgOKUgOKWuiDmnI3liqHlmagKICAgICAgICAgICAgICAgICAgICAgICAgICAgIOKUnOKUgCBkb2NrZXItY29tcG9zZQogICAgICAgICAgICAgICAgICAgICAgICAgICAg4pSCICAgIOKUnOKUgCBhZ2VudCAoRmFzdEFQSSwgOjgwMDApIOKGkiBMTE0gQVBJICjlpJbnvZEpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICDilIIgICAg4pSU4pSAIGNvZGUtc2VydmVyICjlj6/pgIkgcHJvZmlsZSwgOjgwODAsIOe9kemhtSBWUyBDb2RlKQogICAgICAgICAgICAgICAgICAgICAgICAgICAg4pSU4pSAIHZvbHVtZTogYWdlbnRfd29ya3NwYWNlLwpgYGAKCuacrOWcsOW8gOWPkeS4jeeUqCBEb2NrZXIg5Lmf6KGM77yaYC4vc3RhcnQuc2hgIOebtOaOpSB1dmljb3JuIOWQr+WKqOOAggoKIyMgNy4g5omp5bGV6Lev57q/CgotIHYxLjEg5rWB5byP6L6T5Ye6IFNTRSArIOW3peWFt+aXpeW/l+WunuaXtuaOqOmAgQotIHYxLjIg5Lya6K+d5oyB5LmF5YyWIFNRTGl0Ze+8iHYwLjMg4pyT77yJKyBNRU1PUlkubWQg6ZW/5pyf6K6w5b+G5rOo5YWl77yIdjAuNCDinJPvvIkKLSB2MS4zIOWuoeaJueWNoe+8mmV4ZWMgLyDliKDpmaTnsbvlt6XlhbfmiafooYzliY3liY3nq6/noa7orqTvvIh2MC41IOKck++8jOWIoOmZpOW3peWFt+acrOi6q+i/mOayoeWKoO+8jOeVmeWIsOS7peWQjuebtOaOpei/m+mrmOmjjumZqee6p++8iQotIHYyLjAg5bel5YW35bGC5pS5IE1DUCBTZXJ2ZXLvvIzlt6Xlhbflj6/ooqvku7vmhI8gTUNQIOWuouaIt+err+WkjeeUqO+8m+WinuWKoCBnaXTjgIFQbGF5d3JpZ2h0IOa1j+iniOWZqOOAgWNyb24g5a6a5pe25bel5YW3Ci0gdjIuMSBUYXVyaSDmiZPljIXmoYzpnaLlrqLmiLfnq6/vvIjlhoXltYznvZHpobXvvIzov57mjqXov5znqIvlkI7nq6/vvIkK
+# 整体架构设计 —— Personal Agent v1
+
+## 1. 目标与边界
+
+- 用户通过网页（后续可 Tauri/Electron 套壳成桌面程序）和 AI 对话。
+- AI 在用户自己的服务器上工作：读/写代码、执行命令、跑测试、做自动化。
+- AI 本身不直接接触服务器：所有动作必须经工具层 + 权限层，留痕、可拦截。
+- 模型可替换：只依赖 OpenAI-compatible 的 Chat Completions + Tool Calling 接口。
+
+## 2. 分层架构
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  表现层 Presentation                                     │
+│  static/index.html  单页聊天：消息流 + 工具调用日志展示    │
+│  (后续: SSE 流式、审批弹窗、code-server 网页编辑器并排)    │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTP  POST /api/chat   GET /health
+┌──────────────────────▼──────────────────────────────────┐
+│  编排层 Orchestration        backend/main.py (FastAPI)   │
+│  - 拼上下文: System Prompt + 历史 + 工具 Schema          │
+│  - Agent Loop: 调模型 → 有 tool_call 就执行 → 回喂结果    │
+│    → 再调模型 … 直到无 tool_call 或达 MAX_TOOL_ROUNDS     │
+│  - 鉴权: ACCESS_TOKEN (可选) / 超时 / 轮数上限            │
+└───────┬──────────────────────────────┬────────────────┘
+        │ tool_call (JSON)               │ HTTPS
+┌───────▼──────────────────┐   ┌─────────▼────────────────┐
+│  工具层 Tools             │   │  模型层 LLM (外部 API)    │
+│  backend/tools.py        │   │  Muse / OpenAI / DeepSeek │
+│  list_files / read_file  │   │  / Qwen / Moonshot …      │
+│  write_file / exec_cmd   │   │  只做推理与决策，不执行    │
+│  - 路径沙箱校验           │   └───────────────────────────┘
+│  - 命令超时 60s / 输出截断 │
+└───────┬──────────────────┘
+        │ 仅允许访问
+┌───────▼──────────────────┐
+│  执行环境 Sandbox         │
+│  agent_workspace/ (卷)   │
+│  Docker 容器 / 低权用户   │
+│  代码、数据、MEMORY.md    │
+└──────────────────────────┘
+```
+
+## 3. 一次请求的时序
+
+1. 浏览器 POST /api/chat {message, history}
+2. 编排层组装 messages = [system, memory（有 MEMORY.md 时）, ...history, user]
+3. 调用模型 API（带 tools schema）
+4. 模型返回：
+   - 纯文本 → 作为最终回复返回浏览器，结束
+   - tool_calls → 编排层逐个调用工具层执行，把 {role: tool, content: 结果} 追加到 messages，回到第 3 步
+5. 工具报错不中断：错误文本同样回喂，模型自行修正重试
+6. 超过 MAX_TOOL_ROUNDS（默认 12）强制暂停，防止死循环烧 token
+
+## 4. 数据与状态
+
+| 数据 | 存放 | 说明 |
+|---|---|---|
+| 对话历史 | 前端内存（v1） | 刷新即丢；v2 落 SQLite |
+| 代码/文件 | agent_workspace/ 卷 | Docker 重启不丢，AI 只能动这里 |
+| 配置/密钥 | .env（不进 Git） | LLM_API_KEY、BASE_URL、MODEL、ACCESS_TOKEN |
+| 长期记忆 | agent_workspace/MEMORY.md | v0.4 已接入，每次请求作为第二条 system 消息注入（上限 2000 字符，手动编辑）；v0.5 起 Agent 可提议改写，但须经审批卡确认才落盘 |
+| 审计日志 | data/audit.log（JSON Lines，不进 git） | v0.5：每次工具调用记一行（时间、会话、工具、参数摘要、风险级、通过/拒绝/自动、结果摘要） |
+
+## 5. 安全设计
+
+- **沙箱**：路径 resolve 后必须在 WORKSPACE 内，`../` 穿越直接拒绝（已实测）。
+- **容器隔离**：生产部署用 docker-compose，后端跑在容器里，即使命令失控也出不了容器 + 卷的范围。
+- **访问控制**：设置 ACCESS_TOKEN 后，/api/chat 必须带 `x-access-token` 请求头；公网部署再叠加反向代理 HTTPS。没有鉴权时只应绑定内网/VPN。
+- **资源限制**：命令 60 秒超时、输出截断、工具轮数上限。
+- **审批分级（v0.5）**：工具调用先分级再执行——只读（list/read、ls/cat、git status/diff、pytest）自动执行；改动（覆盖已有文件、跑代码、git commit、写 MEMORY.md）弹 SSE 审批卡等用户点一次，通过只放行这一次，5 分钟不点按拒绝；高危（rm、sudo、chmod 777、下载后直接执行、.env/.pem）默认拒绝、卡上也不给过。判定是启发式（第一段 token + 危险 flag，串联命令升一级），不是形式化验证，真正的兜底还是容器 + 沙箱。
+- **审计日志（v0.5）**：每次工具调用记一行 JSON Lines 到 `data/audit.log`（不进 git），可直接 grep 查“模型都动过哪些文件”。
+
+## 6. 部署拓扑
+
+```
+用户浏览器 ──HTTPS/内网──► 服务器
+                            ├─ docker-compose
+                            │    ├─ agent (FastAPI, :8000) → LLM API (外网)
+                            │    └─ code-server (可选 profile, :8080, 网页 VS Code)
+                            └─ volume: agent_workspace/
+```
+
+本地开发不用 Docker 也行：`./start.sh` 直接 uvicorn 启动。
+
+## 7. 扩展路线
+
+- v1.1 流式输出 SSE + 工具日志实时推送
+- v1.2 会话持久化 SQLite（v0.3 ✓）+ MEMORY.md 长期记忆注入（v0.4 ✓）
+- v1.3 审批卡：exec / 删除类工具执行前前端确认（v0.5 ✓，删除工具本身还没加，留到以后直接进高风险级）
+- v2.0 工具层改 MCP Server，工具可被任意 MCP 客户端复用；增加 git、Playwright 浏览器、cron 定时工具
+- v2.1 Tauri 打包桌面客户端（内嵌网页，连接远程后端）
