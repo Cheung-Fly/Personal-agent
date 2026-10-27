@@ -1,1 +1,236 @@
-IiIi5bel5YW36LCD55So5a6h5om55YiG57qn77yIdjAuNe+8ie+8muWPquivu+iHquWKqOOAgeaUueWKqOehruiupOOAgemrmOWNseaLkue7neOAggoK6K6+6K6h5Y+j5b6E77yI6KeB6K6+6K6h6I2J56i/IHYwLjUt5a6h5om55YiG57qn6K6+6K6h6I2J56i/Lm1k77yJ77yaCi0g5LiJ57qn77yabG93IOiHquWKqOaJp+ihjOOAgW1lZGl1bSDlvLnljaHnoa7orqTkuIDmrKHjgIFoaWdoIOm7mOiupOaLkue7ne+8iOWNoeS4iuS5n+S4jee7mei/h++8ieOAggotIOWIpOWumuWPqueci+esrOS4gOautSB0b2tlbiArIOWNsemZqSBmbGFnIOWIl+ihqO+8jOS4jeWBmuWujOaVtCBzaGVsbCDop6PmnpDvvJsKICDop6PmnpDkuI3lh7rnmoTjgIHlkKsgJiYgLyA7IC8gfCDkuLLogZTnmoTvvIzkuIDlvovljYfkuIDnuqfigJTigJTlroHlj6/lpJrlvLnkuIDmrKHljaHvvIwKICDkuI3mlL7ov4fkuIDmnaHlj6/nlpHlkb3ku6TjgIIKLSBDaHVuZyAyMDI2LTEwLTI3IOWumu+8mui3kea1i+ivleiHquWKqO+8iHB5dGVzdCDlsZ7kvY7po47pmanvvInvvIznnJ/mraPlhpnnm5ggLwogIOaUueS7o+eggeeahOWRveS7pOW8ueWNoe+8m01FTU9SWS5tZCDoh6rliqjlhpnlhaXlj6Pov5nmrKHlvIDigJTigJRBZ2VudCDmj5Dorq7lhpkKICDorrDlv4bvvIzmsLjov5zotbDkuK3po47pmanlrqHmibnljaHvvIzngrnkuobpgJrov4fmiY3lhpnjgIIKLSDpo47pmanliKTlrprmmK/lkK/lj5HlvI/vvIzkuI3mmK/lvaLlvI/ljJbpqozor4HvvJrmqKHlnovmjaLnp43lhpnms5Xnu5Xov4fpu5HlkI3ljZXku40KICDmnInlj6/og73vvIznnJ/mraPnmoTlhZzlupXmmK8gRG9ja2VyIOWuueWZqCArIOW3peS9nOWMuuaymeeuse+8jOWuoeaJueWPquaYr+WkmuS4gOWxguOAggotIOW+heehruiupOeKtuaAgeaUvuWGheWtmCBkaWN077yI6YeN5ZCv5bCx5Lii77yM5pyq56Gu6K6k55qE6LCD55So5LiN5omn6KGM77yM5a6J5YWo6buY6K6kCiAg5piv5ouS57ud77yJ77yb5a6h6K6h5pel5b+X5YaZIGRhdGEvYXVkaXQubG9nIEpTT04gTGluZXPvvIzkuI3ov5sgZ2l044CCCgrmoIflh4blupPvvIzpm7bmlrDlop7kvp3otZbjgIIKIiIiCmltcG9ydCBhc3luY2lvCmltcG9ydCBqc29uCmltcG9ydCBvcwppbXBvcnQgc2hsZXgKaW1wb3J0IHRpbWUKaW1wb3J0IHV1aWQKZnJvbSBkYXRldGltZSBpbXBvcnQgZGF0ZXRpbWUsIHRpbWV6b25lCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aAoKTE9XID0gImxvdyIgICMg6Ieq5Yqo5omn6KGMCk1FRElVTSA9ICJtZWRpdW0iICAjIOW8ueWNoeehruiupOS4gOasoQpISUdIID0gImhpZ2giICAjIOm7mOiupOaLkue7nQoKQVBQUk9WQUxfVElNRU9VVF9TRUNPTkRTID0gaW50KG9zLmVudmlyb24uZ2V0KCJBUFBST1ZBTF9USU1FT1VUX1NFQ09ORFMiLCAiMzAwIikpCgojIOWPquivu+WRveS7pOacgOWwj+mbhu+8mmxzIC8gY2F0IC8gcHdkIOaYr+e6r+ivu++8m3B5dGhvbiAtLXZlcnNpb24g5Y+q5omT5Y2w54mI5pys77ybCiMgcHl0ZXN0IOi3kea1i+ivle+8iENodW5nIOWumu+8mua1i+ivleiHquWKqOi3ke+8ie+8m2dpdCBzdGF0dXMgLyBnaXQgZGlmZiDlj6rnnIvkuI3mlLnjgIIKX1JFQURfT05MWV9GSVJTVCA9IHsibHMiLCAiY2F0IiwgInB3ZCJ9CiMg5YaZ55uYIC8g5pS55Luj56CB57G75ZG95Luk5by55Y2h77yb5YW25L2Z6K6k5LiN5Ye655qEIGV4ZWMg5ZG95Luk6buY6K6k5Lmf5by55Y2h77yIbWVkaXVt77yJ44CCCiMg6auY5Y2x5Y+q5YiX6K6+6K6h6I2J56i/54K55ZCN55qE5Yeg57G777yacm3jgIFzdWRv44CBY2htb2QgNzc344CB5LiL6L295ZCO55u05o6l5omn6KGM44CCCl9ISUdIX0ZJUlNUID0geyJybSIsICJzdWRvIiwgImRkIiwgIm1rZnMiLCAic2h1dGRvd24iLCAicmVib290In0KX0VYRUNfU0hFTExTID0geyJzaCIsICJiYXNoIiwgInpzaCIsICJkYXNoIn0KX0RPV05MT0FERVJTID0geyJjdXJsIiwgIndnZXQifQojIHdyaXRlX2ZpbGUg5YaZ5Yiw6L+Z5Lqb5ZCN5a2XID0g57O757uf5pWP5oSf6Lev5b6E77yM6buY6K6k5ouS57ud77yITUVNT1JZLm1kIOmZpOWklu+8jAojIOWug+i1sCBtZWRpdW0g5a6h5om55Y2h77yb5YW25L2Z6Lev5b6E56m/6LaK5pys5bCx6KKrIHRvb2xzLl9zYWZlX3BhdGgg5oum5L2P77yJ44CCCl9TRU5TSVRJVkVfTkFNRVMgPSB7Ii5lbnYifQpfU0VOU0lUSVZFX1NVRkZJWEVTID0gKCIucGVtIiwgIi5rZXkiKQoKCmRlZiBfZXNjYWxhdGUobGV2ZWw6IHN0cikgLT4gc3RyOgogICAgIiIi5Y2H5LiA57qn77yabG93IC0+IG1lZGl1be+8jG1lZGl1bS9oaWdoIC0+IGhpZ2jjgIIiIiIKICAgIGlmIGxldmVsID09IExPVzoKICAgICAgICByZXR1cm4gTUVESVVNCiAgICByZXR1cm4gSElHSAoKCmRlZiBfaGFzX2NoYWluKGNvbW1hbmQ6IHN0cikgLT4gYm9vbDoKICAgICIiIuWQq+S4suiBlOeul+WtkO+8iCYmIC8gfHwgLyA7IC8gfO+8ieWNs+eul+S4suiBlOOAgueyl+ezmeS9huWkn+eUqO+8mgogICAg6K+v5Lyk77yI5byV5Y+36YeM55qE5YiG5Y+377yJ5Y+q5Lya5aSa5by55LiA5qyh5Y2h77yM5LiN5Lya5pS+6L+H5Y+v55aR5ZG95Luk44CCIiIiCiAgICByZXR1cm4gYW55KG9wIGluIGNvbW1hbmQgZm9yIG9wIGluICgiJiYiLCAifHwiLCAiOyIsICJ8IikpCgoKZGVmIF9jbGFzc2lmeV9leGVjKGNvbW1hbmQ6IHN0cikgLT4gdHVwbGVbc3RyLCBzdHJdOgogICAgIiIi5Yik5LiA5p2hIHNoZWxsIOWRveS7pOeahOmjjumZqee6p+OAgui/lOWbniAobGV2ZWwsIHJlYXNvbinjgIIiIiIKICAgIGlmIG5vdCBjb21tYW5kIG9yIG5vdCBjb21tYW5kLnN0cmlwKCk6CiAgICAgICAgcmV0dXJuIEhJR0gsICLnqbrlkb3ku6QiCiAgICB0cnk6CiAgICAgICAgdG9rZW5zID0gc2hsZXguc3BsaXQoY29tbWFuZCkKICAgIGV4Y2VwdCBWYWx1ZUVycm9yOgogICAgICAgIHJldHVybiBISUdILCAi5ZG95Luk5peg5rOV6Kej5p6QIgogICAgaWYgbm90IHRva2VuczoKICAgICAgICByZXR1cm4gSElHSCwgIuepuuWRveS7pCIKICAgIGNoYWluZWQgPSBfaGFzX2NoYWluKGNvbW1hbmQpCiAgICBmaXJzdCA9IHRva2Vuc1swXQogICAgYmFzZSA9IGZpcnN0LnJzcGxpdCgiLyIsIDEpWy0xXSAgIyAvYmluL3JtIOS5n+eulyBybQoKICAgICMg6auY5Y2x77ya54K55ZCN55qE5Y2x6Zmp5pON5L2c77yI5YWI5Yik77yM5LiN5Y+X5Liy6IGU5b2x5ZON77yM5pys6Lqr5bey5piv5pyA6auY57qn77yJ44CCCiAgICBpZiBiYXNlIGluIF9ISUdIX0ZJUlNUOgogICAgICAgIHJldHVybiBISUdILCBmIumrmOWNseWRveS7pO+8mntiYXNlfSIKICAgIGlmIGJhc2UgPT0gImNobW9kIiBhbmQgYW55KHQgaW4gKCI3NzciLCAiYStyd3giLCAidWdvK3J3eCIpIGZvciB0IGluIHRva2Vuc1sxOl0pOgogICAgICAgIHJldHVybiBISUdILCAiY2htb2QgNzc3IOS8muaUvuW8gOWFqOmDqOadg+mZkCIKICAgIGlmIGJhc2UgaW4gX0RPV05MT0FERVJTIGFuZCBhbnkodCBpbiBfRVhFQ19TSEVMTFMgZm9yIHQgaW4gdG9rZW5zKToKICAgICAgICAjIGN1cmwgLi4uIHwgc2ggLyB3Z2V0IC4uLiB8IGJhc2jvvJrlr7nlpJbkuIvovb3lkI7nm7TmjqXmiafooYwKICAgICAgICByZXR1cm4gSElHSCwgIuS4i+i9veWQjuebtOaOpeaJp+ihjOiEmuacrCIKICAgIGlmIGJhc2UgaW4gX0VYRUNfU0hFTExTIGFuZCAiLWMiIGluIHRva2VuczoKICAgICAgICAjIHNoIC1jICcuLi4n77ya5YaF5a655LiN6Kej5p6Q77yM55u05o6l5oyJ6auY5Y2x5aSE55CG5aSq5Lil4oCU4oCU5oyJIG1lZGl1bSDlho3nnIvkuLLogZTjgIIKICAgICAgICBsZXZlbCwgcmVhc29uID0gTUVESVVNLCAic2ggLWMg5omn6KGM5ou85o6l5ZG95Luk77yM6ZyA56Gu6K6kIgogICAgICAgIHJldHVybiAoX2VzY2FsYXRlKGxldmVsKSwgcmVhc29uICsgIu+8m+WQq+S4suiBlOWRveS7pO+8jOWNh+S4gOe6pyIpIGlmIGNoYWluZWQgZWxzZSAobGV2ZWwsIHJlYXNvbikKCiAgICAjIOS9jumjjumZqe+8muWPquivu+acgOWwj+mbhuOAggogICAgaWYgYmFzZSBpbiBfUkVBRF9PTkxZX0ZJUlNUOgogICAgICAgIGxldmVsLCByZWFzb24gPSBMT1csIGYi5Y+q6K+75ZG95Luk77yae2Jhc2V9IgogICAgZWxpZiBiYXNlIGluICgicHl0ZXN0IiwgInB5dGhvbiIsICJweXRob24zIikgYW5kICgKICAgICAgICBiYXNlID09ICJweXRlc3QiIG9yIChsZW4odG9rZW5zKSA+IDEgYW5kIHRva2Vuc1sxXSA9PSAiLW0iIGFuZCBsZW4odG9rZW5zKSA+IDIgYW5kIHRva2Vuc1syXSA9PSAicHl0ZXN0IikKICAgICAgICBvciAoYmFzZSBpbiAoInB5dGhvbiIsICJweXRob24zIikgYW5kIHRva2Vuc1sxOl0gPT0gWyItLXZlcnNpb24iXSkKICAgICk6CiAgICAgICAgbGV2ZWwsIHJlYXNvbiA9IExPVywgIui3kea1i+ivlSAvIOafpeeJiOacrO+8jOS4jeaUueS4nOilvyIKICAgIGVsaWYgYmFzZSA9PSAiZ2l0IiBhbmQgbGVuKHRva2VucykgPiAxIGFuZCB0b2tlbnNbMV0gaW4gKCJzdGF0dXMiLCAiZGlmZiIpOgogICAgICAgIGxldmVsLCByZWFzb24gPSBMT1csICJnaXQg5Y+q6K+75p+l55yLIgogICAgIyDkuK3po47pmanvvJrmiafooYzku6PnoIHjgIHmlLnku6PnoIEgLyDmlLnnirbmgIHnmoTlkb3ku6TjgIIKICAgIGVsaWYgYmFzZSBpbiAoInB5dGhvbiIsICJweXRob24zIik6CiAgICAgICAgbGV2ZWwsIHJlYXNvbiA9IE1FRElVTSwgIuaJp+ihjOS7o+egge+8jOWPr+iDveaUueaWh+S7tiIKICAgIGVsaWYgYmFzZSA9PSAiZ2l0IjoKICAgICAgICBsZXZlbCwgcmVhc29uID0gTUVESVVNLCAiZ2l0IOaUueeKtuaAgeaTjeS9nO+8jOmcgOehruiupCIKICAgIGVsc2U6CiAgICAgICAgbGV2ZWwsIHJlYXNvbiA9IE1FRElVTSwgIumdnuWPquivu+WRveS7pO+8jOmcgOehruiupCIKCiAgICBpZiBjaGFpbmVkOgogICAgICAgIHJldHVybiBfZXNjYWxhdGUobGV2ZWwpLCByZWFzb24gKyAi77yb5ZCr5Liy6IGU5ZG95Luk77yM5Y2H5LiA57qnIgogICAgcmV0dXJuIGxldmVsLCByZWFzb24KCgpkZWYgY2xhc3NpZnkodG9vbF9uYW1lOiBzdHIsIGFyZ3M6IGRpY3QsIHdvcmtzcGFjZTogUGF0aCkgLT4gdHVwbGVbc3RyLCBzdHJdOgogICAgIiIi5Yik5LiA5qyh5bel5YW36LCD55So55qE6aOO6Zmp57qn44CC6L+U5ZueIChsZXZlbCwgcmVhc29uKeOAggoKICAgIC0gbGlzdF9maWxlcyAvIHJlYWRfZmlsZe+8muWPquivu++8jOS9jumjjumZqeiHquWKqOaJp+ihjOOAggogICAgLSB3cml0ZV9maWxl77ya5YaZ5paw5paH5Lu25L2O6aOO6Zmp77yb6KaG55uW5bey5pyJ5paH5Lu244CB5YaZIE1FTU9SWS5tZCDkuK3po47pmanvvJsKICAgICAg5YaZ57O757uf5pWP5oSf6Lev5b6E77yILmVudiAvIC5wZW0gLyAua2V5IC8gLnNzaCDkuIvvvInpq5jpo47pmanjgIIKICAgIC0gZXhlY19jb21tYW5k77ya6KeBIF9jbGFzc2lmeV9leGVj44CCCiAgICAtIOacquefpeW3peWFt++8mumrmOmjjumZqe+8iOWPjeato+S5n+aJp+ihjOS4jeS6hu+8ieOAggogICAgIiIiCiAgICBpZiB0b29sX25hbWUgaW4gKCJsaXN0X2ZpbGVzIiwgInJlYWRfZmlsZSIpOgogICAgICAgIHJldHVybiBMT1csICLlj6ror7vvvIzkuI3mlLnkuJzopb8iCiAgICBpZiB0b29sX25hbWUgPT0gIndyaXRlX2ZpbGUiOgogICAgICAgIHJlbCA9IGFyZ3MuZ2V0KCJwYXRoIiwgIiIpCiAgICAgICAgdHJ5OgogICAgICAgICAgICBwID0gKHdvcmtzcGFjZSAvIHJlbCkucmVzb2x2ZSgpCiAgICAgICAgZXhjZXB0IChPU0Vycm9yLCBWYWx1ZUVycm9yKToKICAgICAgICAgICAgcmV0dXJuIEhJR0gsIGYi6Lev5b6E5peg5rOV6Kej5p6Q77yae3JlbH0iCiAgICAgICAgaWYgcC5uYW1lID09ICJNRU1PUlkubWQiIGFuZCBwLnBhcmVudCA9PSB3b3Jrc3BhY2UucmVzb2x2ZSgpOgogICAgICAgICAgICByZXR1cm4gTUVESVVNLCAi5YaZ6ZW/5pyf6K6w5b+GIE1FTU9SWS5tZO+8jOmcgOS6uuW3peehruiupCIKICAgICAgICBpZiBwLm5hbWUgaW4gX1NFTlNJVElWRV9OQU1FUyBvciBwLnN1ZmZpeCBpbiBfU0VOU0lUSVZFX1NVRkZJWEVTIG9yICIuc3NoIiBpbiBwLnBhcnRzOgogICAgICAgICAgICByZXR1cm4gSElHSCwgZiLns7vnu5/mlY/mhJ/ot6/lvoTvvJp7cmVsfSIKICAgICAgICBpZiBwLmV4aXN0cygpOgogICAgICAgICAgICByZXR1cm4gTUVESVVNLCBmIuimhuebluW3suacieaWh+S7tu+8mntyZWx9IgogICAgICAgIHJldHVybiBMT1csICLlhpnmlrDmlofku7YiCiAgICBpZiB0b29sX25hbWUgPT0gImV4ZWNfY29tbWFuZCI6CiAgICAgICAgcmV0dXJuIF9jbGFzc2lmeV9leGVjKGFyZ3MuZ2V0KCJjb21tYW5kIiwgIiIpKQogICAgcmV0dXJuIEhJR0gsIGYi5pyq55+l5bel5YW377yae3Rvb2xfbmFtZX0iCgoKY2xhc3MgQXBwcm92YWxTdG9yZToKICAgICIiIuW+heehruiupOeahOWuoeaJueWNoe+8muWGheWtmCBkaWN077yM6YeN5ZCv5bCx5Lii77yM5pyq56Gu6K6k5LiN5omn6KGM44CCCgogICAg5LiA5p2h6K6w5b2V77yae3Rvb2wsIGFyZ3MsIGxldmVsLCByZWFzb24sIHNlc3Npb25faWQsIGNyZWF0ZWRfYXQsCiAgICBkZWNpc2lvbn3vvIxkZWNpc2lvbiDkuLogTm9uZSDooajnpLrov5jlnKjnrYnnlKjmiLfngrnljaHjgIIKICAgICIiIgoKICAgIGRlZiBfX2luaXRfXyhzZWxmLCB0dGxfc2Vjb25kczogaW50ID0gQVBQUk9WQUxfVElNRU9VVF9TRUNPTkRTKToKICAgICAgICBzZWxmLnR0bCA9IHR0bF9zZWNvbmRzCiAgICAgICAgc2VsZi5fcGVuZGluZzogZGljdFtzdHIsIGRpY3RdID0ge30KCiAgICBkZWYgY3JlYXRlKHNlbGYsICosIHRvb2w6IHN0ciwgYXJnczogZGljdCwgbGV2ZWw6IHN0ciwgcmVhc29uOiBzdHIsIHNlc3Npb25faWQ6IHN0cikgLT4gc3RyOgogICAgICAgIGFwcHJvdmFsX2lkID0gc3RyKHV1aWQudXVpZDQoKSkKICAgICAgICBzZWxmLl9wZW5kaW5nW2FwcHJvdmFsX2lkXSA9IHsKICAgICAgICAgICAgInRvb2wiOiB0b29sLAogICAgICAgICAgICAiYXJncyI6IGFyZ3MsCiAgICAgICAgICAgICJsZXZlbCI6IGxldmVsLAogICAgICAgICAgICAicmVhc29uIjogcmVhc29uLAogICAgICAgICAgICAic2Vzc2lvbl9pZCI6IHNlc3Npb25faWQsCiAgICAgICAgICAgICJjcmVhdGVkX2F0IjogdGltZS5tb25vdG9uaWMoKSwKICAgICAgICAgICAgImRlY2lzaW9uIjogTm9uZSwKICAgICAgICB9CiAgICAgICAgcmV0dXJuIGFwcHJvdmFsX2lkCgogICAgZGVmIGdldChzZWxmLCBhcHByb3ZhbF9pZDogc3RyKSAtPiBkaWN0IHwgTm9uZToKICAgICAgICByZWMgPSBzZWxmLl9wZW5kaW5nLmdldChhcHByb3ZhbF9pZCkKICAgICAgICBpZiByZWMgaXMgTm9uZToKICAgICAgICAgICAgcmV0dXJuIE5vbmUKICAgICAgICBpZiB0aW1lLm1vbm90b25pYygpIC0gcmVjWyJjcmVhdGVkX2F0Il0gPiBzZWxmLnR0bDoKICAgICAgICAgICAgc2VsZi5fcGVuZGluZy5wb3AoYXBwcm92YWxfaWQsIE5vbmUpCiAgICAgICAgICAgIHJldHVybiBOb25lCiAgICAgICAgcmV0dXJuIHJlYwoKICAgIGRlZiBkZWNpZGUoc2VsZiwgYXBwcm92YWxfaWQ6IHN0ciwgZGVjaXNpb246IHN0cikgLT4gZGljdCB8IE5vbmU6CiAgICAgICAgIiIi55So5oi354K55Y2h77yaZGVjaXNpb24g5Li6ICJhcHByb3ZlIiAvICJkZW55IuOAggogICAgICAgIOS4jeWtmOWcqOaIluW3sui/h+acn+i/lOWbniBOb25l77yb5ZCm5YiZ6K6w5b2V5Yaz5a6a5bm26L+U5Zue6K+l6K6w5b2V44CCIiIiCiAgICAgICAgcmVjID0gc2VsZi5nZXQoYXBwcm92YWxfaWQpCiAgICAgICAgaWYgcmVjIGlzIE5vbmU6CiAgICAgICAgICAgIHJldHVybiBOb25lCiAgICAgICAgcmVjWyJkZWNpc2lvbiJdID0gZGVjaXNpb24KICAgICAgICByZXR1cm4gcmVjCgogICAgZGVmIHRha2Uoc2VsZiwgYXBwcm92YWxfaWQ6IHN0cikgLT4gZGljdCB8IE5vbmU6CiAgICAgICAgIiIi5Y+W6LWw5LiA5p2h6K6w5b2V77yI562J5Yiw5Yaz5a6a5ZCO6LCD55So77yM6YG/5YWN5LiA5byg5Y2h6KKr6YeN5aSN5raI6LS577yJ44CCIiIiCiAgICAgICAgcmV0dXJuIHNlbGYuX3BlbmRpbmcucG9wKGFwcHJvdmFsX2lkLCBOb25lKQoKCmFzeW5jIGRlZiB3YWl0X2Zvcl9kZWNpc2lvbihzdG9yZTogQXBwcm92YWxTdG9yZSwgYXBwcm92YWxfaWQ6IHN0ciwgcG9sbF9pbnRlcnZhbDogZmxvYXQgPSAwLjUpIC0+IHN0cjoKICAgICIiIuetieeUqOaIt+eCueWNoeOAgui/lOWbniAiYXBwcm92ZSIgLyAiZGVueSIgLyAidGltZW91dCLjgIIKCiAgICA1IOWIhumSn+aXoOS6uuehruiupOaMieaLkue7neWkhOeQhu+8m+WNoeS4jeWtmOWcqO+8iOiiq+a4heaOiSAvIOmHjeWQr+S4ouS6hu+8ieS5n+aMieaLkue7neKAlOKAlAogICAg5a6J5YWo6buY6K6k5YC85rC46L+c5piv5ouS57ud44CC5rOo5oSP4oCc6LaF5pe24oCd5ZKM4oCc5Y2h5rKh5LqG4oCd6KaB5YiG5byA77ya562J552A562J552A5Y2hCiAgICDmsqHkuobvvIzlj6rog73mmK8gVFRMIOWIsOacn+iiqyBnZXQoKSDpobrmiYvmuIXmjonvvIjlj5botbDlj6rlj5HnlJ/lnKjlhrPlrprkuYvlkI7vvInvvIwKICAgIOaJgOS7peeulyAidGltZW91dCLvvJvkuIDlvIDlp4vljaHlsLHkuI3lnKjmiY3nrpcgImRlbnki44CCIiIiCiAgICBzZWVuID0gRmFsc2UKICAgIGRlYWRsaW5lID0gdGltZS5tb25vdG9uaWMoKSArIHN0b3JlLnR0bAogICAgd2hpbGUgVHJ1ZToKICAgICAgICByZWMgPSBzdG9yZS5nZXQoYXBwcm92YWxfaWQpCiAgICAgICAgaWYgcmVjIGlzIG5vdCBOb25lOgogICAgICAgICAgICBzZWVuID0gVHJ1ZQogICAgICAgICAgICBpZiByZWMuZ2V0KCJkZWNpc2lvbiIpIGluICgiYXBwcm92ZSIsICJkZW55Iik6CiAgICAgICAgICAgICAgICBzdG9yZS50YWtlKGFwcHJvdmFsX2lkKQogICAgICAgICAgICAgICAgcmV0dXJuIHJlY1siZGVjaXNpb24iXQogICAgICAgIGVsaWYgc2VlbjoKICAgICAgICAgICAgcmV0dXJuICJ0aW1lb3V0IgogICAgICAgIGlmIHRpbWUubW9ub3RvbmljKCkgPiBkZWFkbGluZToKICAgICAgICAgICAgc3RvcmUudGFrZShhcHByb3ZhbF9pZCkKICAgICAgICAgICAgcmV0dXJuICJ0aW1lb3V0IgogICAgICAgIGF3YWl0IGFzeW5jaW8uc2xlZXAocG9sbF9pbnRlcnZhbCkKCgpkZWYgYXVkaXRfbG9nX3BhdGgoKSAtPiBQYXRoOgogICAgIiIi5a6h6K6h5pel5b+X5L2N572u77yaZGF0YS9hdWRpdC5sb2fvvIjkuI4gdjAuMyDnmoQgU1FMaXRlIOS8muivneW6k+WIhuW8gO+8jAogICAg5paH5Lu25LiA55y86IO955yL77ybZGF0YS8g5bey6L+bIC5naXRpZ25vcmXvvIzkuI3ov5sgZ2l077yJ44CCIiIiCiAgICByZXR1cm4gUGF0aChvcy5lbnZpcm9uLmdldCgiREFUQV9ESVIiLCAiLi9kYXRhIikpIC8gImF1ZGl0LmxvZyIKCgpkZWYgbG9nX2F1ZGl0KCosIHNlc3Npb25faWQ6IHN0ciwgdG9vbDogc3RyLCBhcmdzOiBkaWN0LCBsZXZlbDogc3RyLCBvdXRjb21lOiBzdHIsCiAgICAgICAgICAgICAgcmVzdWx0X3N1bW1hcnk6IHN0ciA9ICIiKSAtPiBOb25lOgogICAgIiIi5q+P5qyh5bel5YW36LCD55So6K6w5LiA6KGMIEpTT04gTGluZXPvvJrml7bpl7TjgIHkvJror53jgIHlt6XlhbfjgIHlj4LmlbDmkZjopoHjgIEKICAgIOmjjumZqee6p+OAgemAmui/hy/mi5Lnu50v6Ieq5Yqo44CB5omn6KGM57uT5p6c5pGY6KaB44CC5YaZ5aSx6LSl5LiN5oqb5byC5bi477yI5a6h6K6h5LiNCiAgICDog73mi5blnq7kuLvmtYHnqIvvvInvvIzlj6rmiZPkuIDooYzml6Xlv5fjgIIiIiIKICAgIHJvdyA9IHsKICAgICAgICAidHMiOiBkYXRldGltZS5ub3codGltZXpvbmUudXRjKS5pc29mb3JtYXQoKSwKICAgICAgICAic2Vzc2lvbl9pZCI6IHNlc3Npb25faWQsCiAgICAgICAgInRvb2wiOiB0b29sLAogICAgICAgICJhcmdzIjoganNvbi5kdW1wcyhhcmdzLCBlbnN1cmVfYXNjaWk9RmFsc2UpWzo1MDBdLAogICAgICAgICJsZXZlbCI6IGxldmVsLAogICAgICAgICJvdXRjb21lIjogb3V0Y29tZSwgICMgYXV0byAvIGFwcHJvdmVkIC8gZGVuaWVkIC8gdGltZW91dCAvIGhpZ2hfZGVuaWVkIC8gbmVlZHNfYXBwcm92YWwKICAgICAgICAicmVzdWx0IjogKHJlc3VsdF9zdW1tYXJ5IG9yICIiKVs6MjAwXSwKICAgIH0KICAgIHRyeToKICAgICAgICBwID0gYXVkaXRfbG9nX3BhdGgoKQogICAgICAgIHAucGFyZW50Lm1rZGlyKHBhcmVudHM9VHJ1ZSwgZXhpc3Rfb2s9VHJ1ZSkKICAgICAgICB3aXRoIHAub3BlbigiYSIsIGVuY29kaW5nPSJ1dGYtOCIpIGFzIGY6CiAgICAgICAgICAgIGYud3JpdGUoanNvbi5kdW1wcyhyb3csIGVuc3VyZV9hc2NpaT1GYWxzZSkgKyAiXG4iKQogICAgZXhjZXB0IE9TRXJyb3IgYXMgZToKICAgICAgICBwcmludChmIlthdWRpdF0g5YaZ5a6h6K6h5pel5b+X5aSx6LSlOiB7ZX0iKQo=
+"""工具调用审批分级（v0.5）：只读自动、改动确认、高危拒绝。
+
+设计口径（见设计草稿 v0.5-审批分级设计草稿.md）：
+- 三级：low 自动执行、medium 弹卡确认一次、high 默认拒绝（卡上也不给过）。
+- 判定只看第一段 token + 危险 flag 列表，不做完整 shell 解析；
+  解析不出的、含 && / ; / | 串联的，一律升一级——宁可多弹一次卡，
+  不放过一条可疑命令。
+- Chung 2026-10-27 定：跑测试自动（pytest 属低风险），真正写盘 /
+  改代码的命令弹卡；MEMORY.md 自动写入口这次开——Agent 提议写
+  记忆，永远走中风险审批卡，点了通过才写。
+- 风险判定是启发式，不是形式化验证：模型换种写法绕过黑名单仍
+  有可能，真正的兜底是 Docker 容器 + 工作区沙箱，审批只是多一层。
+- 待确认状态放内存 dict（重启就丢，未确认的调用不执行，安全默认
+  是拒绝）；审计日志写 data/audit.log JSON Lines，不进 git。
+
+标准库，零新增依赖。
+"""
+import asyncio
+import json
+import os
+import shlex
+import time
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+
+LOW = "low"  # 自动执行
+MEDIUM = "medium"  # 弹卡确认一次
+HIGH = "high"  # 默认拒绝
+
+APPROVAL_TIMEOUT_SECONDS = int(os.environ.get("APPROVAL_TIMEOUT_SECONDS", "300"))
+
+# 只读命令最小集：ls / cat / pwd 是纯读；python --version 只打印版本；
+# pytest 跑测试（Chung 定：测试自动跑）；git status / git diff 只看不改。
+_READ_ONLY_FIRST = {"ls", "cat", "pwd"}
+# 写盘 / 改代码类命令弹卡；其余认不出的 exec 命令默认也弹卡（medium）。
+# 高危只列设计草稿点名的几类：rm、sudo、chmod 777、下载后直接执行。
+_HIGH_FIRST = {"rm", "sudo", "dd", "mkfs", "shutdown", "reboot"}
+_EXEC_SHELLS = {"sh", "bash", "zsh", "dash"}
+_DOWNLOADERS = {"curl", "wget"}
+# write_file 写到这些名字 = 系统敏感路径，默认拒绝（MEMORY.md 除外，
+# 它走 medium 审批卡；其余路径穿越本就被 tools._safe_path 拦住）。
+_SENSITIVE_NAMES = {".env"}
+_SENSITIVE_SUFFIXES = (".pem", ".key")
+
+
+def _escalate(level: str) -> str:
+    """升一级：low -> medium，medium/high -> high。"""
+    if level == LOW:
+        return MEDIUM
+    return HIGH
+
+
+def _has_chain(command: str) -> bool:
+    """含串联算子（&& / || / ; / |）即算串联。粗糙但够用：
+    误伤（引号里的分号）只会多弹一次卡，不会放过可疑命令。"""
+    return any(op in command for op in ("&&", "||", ";", "|"))
+
+
+def _classify_exec(command: str) -> tuple[str, str]:
+    """判一条 shell 命令的风险级。返回 (level, reason)。"""
+    if not command or not command.strip():
+        return HIGH, "空命令"
+    try:
+        tokens = shlex.split(command)
+    except ValueError:
+        return HIGH, "命令无法解析"
+    if not tokens:
+        return HIGH, "空命令"
+    chained = _has_chain(command)
+    first = tokens[0]
+    base = first.rsplit("/", 1)[-1]  # /bin/rm 也算 rm
+
+    # 高危：点名的危险操作（先判，不受串联影响，本身已是最高级）。
+    if base in _HIGH_FIRST:
+        return HIGH, f"高危命令：{base}"
+    if base == "chmod" and any(t in ("777", "a+rwx", "ugo+rwx") for t in tokens[1:]):
+        return HIGH, "chmod 777 会放开全部权限"
+    if base in _DOWNLOADERS and any(t in _EXEC_SHELLS for t in tokens):
+        # curl ... | sh / wget ... | bash：对外下载后直接执行
+        return HIGH, "下载后直接执行脚本"
+    if base in _EXEC_SHELLS and "-c" in tokens:
+        # sh -c '...'：内容不解析，直接按高危处理太严——按 medium 再看串联。
+        level, reason = MEDIUM, "sh -c 执行拼接命令，需确认"
+        return (_escalate(level), reason + "；含串联命令，升一级") if chained else (level, reason)
+
+    # 低风险：只读最小集。
+    if base in _READ_ONLY_FIRST:
+        level, reason = LOW, f"只读命令：{base}"
+    elif base in ("pytest", "python", "python3") and (
+        base == "pytest" or (len(tokens) > 1 and tokens[1] == "-m" and len(tokens) > 2 and tokens[2] == "pytest")
+        or (base in ("python", "python3") and tokens[1:] == ["--version"])
+    ):
+        level, reason = LOW, "跑测试 / 查版本，不改东西"
+    elif base == "git" and len(tokens) > 1 and tokens[1] in ("status", "diff"):
+        level, reason = LOW, "git 只读查看"
+    # 中风险：执行代码、改代码 / 改状态的命令。
+    elif base in ("python", "python3"):
+        level, reason = MEDIUM, "执行代码，可能改文件"
+    elif base == "git":
+        level, reason = MEDIUM, "git 改状态操作，需确认"
+    else:
+        level, reason = MEDIUM, "非只读命令，需确认"
+
+    if chained:
+        return _escalate(level), reason + "；含串联命令，升一级"
+    return level, reason
+
+
+def classify(tool_name: str, args: dict, workspace: Path) -> tuple[str, str]:
+    """判一次工具调用的风险级。返回 (level, reason)。
+
+    - list_files / read_file：只读，低风险自动执行。
+    - write_file：写新文件低风险；覆盖已有文件、写 MEMORY.md 中风险；
+      写系统敏感路径（.env / .pem / .key / .ssh 下）高风险。
+    - exec_command：见 _classify_exec。
+    - 未知工具：高风险（反正也执行不了）。
+    """
+    if tool_name in ("list_files", "read_file"):
+        return LOW, "只读，不改东西"
+    if tool_name == "write_file":
+        rel = args.get("path", "")
+        try:
+            p = (workspace / rel).resolve()
+        except (OSError, ValueError):
+            return HIGH, f"路径无法解析：{rel}"
+        if p.name == "MEMORY.md" and p.parent == workspace.resolve():
+            return MEDIUM, "写长期记忆 MEMORY.md，需人工确认"
+        if p.name in _SENSITIVE_NAMES or p.suffix in _SENSITIVE_SUFFIXES or ".ssh" in p.parts:
+            return HIGH, f"系统敏感路径：{rel}"
+        if p.exists():
+            return MEDIUM, f"覆盖已有文件：{rel}"
+        return LOW, "写新文件"
+    if tool_name == "exec_command":
+        return _classify_exec(args.get("command", ""))
+    return HIGH, f"未知工具：{tool_name}"
+
+
+class ApprovalStore:
+    """待确认的审批卡：内存 dict，重启就丢，未确认不执行。
+
+    一条记录：{tool, args, level, reason, session_id, created_at,
+    decision}，decision 为 None 表示还在等用户点卡。
+    """
+
+    def __init__(self, ttl_seconds: int = APPROVAL_TIMEOUT_SECONDS):
+        self.ttl = ttl_seconds
+        self._pending: dict[str, dict] = {}
+
+    def create(self, *, tool: str, args: dict, level: str, reason: str, session_id: str) -> str:
+        approval_id = str(uuid.uuid4())
+        self._pending[approval_id] = {
+            "tool": tool,
+            "args": args,
+            "level": level,
+            "reason": reason,
+            "session_id": session_id,
+            "created_at": time.monotonic(),
+            "decision": None,
+        }
+        return approval_id
+
+    def get(self, approval_id: str) -> dict | None:
+        rec = self._pending.get(approval_id)
+        if rec is None:
+            return None
+        if time.monotonic() - rec["created_at"] > self.ttl:
+            self._pending.pop(approval_id, None)
+            return None
+        return rec
+
+    def decide(self, approval_id: str, decision: str) -> dict | None:
+        """用户点卡：decision 为 "approve" / "deny"。
+        不存在或已过期返回 None；否则记录决定并返回该记录。"""
+        rec = self.get(approval_id)
+        if rec is None:
+            return None
+        rec["decision"] = decision
+        return rec
+
+    def take(self, approval_id: str) -> dict | None:
+        """取走一条记录（等到决定后调用，避免一张卡被重复消费）。"""
+        return self._pending.pop(approval_id, None)
+
+
+async def wait_for_decision(store: ApprovalStore, approval_id: str, poll_interval: float = 0.5) -> str:
+    """等用户点卡。返回 "approve" / "deny" / "timeout"。
+
+    5 分钟无人确认按拒绝处理；卡不存在（被清掉 / 重启丢了）也按拒绝——
+    安全默认值永远是拒绝。注意“超时”和“卡没了”要分开：等着等着卡
+    没了，只能是 TTL 到期被 get() 顺手清掉（取走只发生在决定之后），
+    所以算 "timeout"；一开始卡就不在才算 "deny"。"""
+    seen = False
+    deadline = time.monotonic() + store.ttl
+    while True:
+        rec = store.get(approval_id)
+        if rec is not None:
+            seen = True
+            if rec.get("decision") in ("approve", "deny"):
+                store.take(approval_id)
+                return rec["decision"]
+        elif seen:
+            return "timeout"
+        if time.monotonic() > deadline:
+            store.take(approval_id)
+            return "timeout"
+        await asyncio.sleep(poll_interval)
+
+
+def audit_log_path() -> Path:
+    """审计日志位置：data/audit.log（与 v0.3 的 SQLite 会话库分开，
+    文件一眼能看；data/ 已进 .gitignore，不进 git）。"""
+    return Path(os.environ.get("DATA_DIR", "./data")) / "audit.log"
+
+
+def log_audit(*, session_id: str, tool: str, args: dict, level: str, outcome: str,
+              result_summary: str = "") -> None:
+    """每次工具调用记一行 JSON Lines：时间、会话、工具、参数摘要、
+    风险级、通过/拒绝/自动、执行结果摘要。写失败不抛异常（审计不
+    能拖垮主流程），只打一行日志。"""
+    row = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "session_id": session_id,
+        "tool": tool,
+        "args": json.dumps(args, ensure_ascii=False)[:500],
+        "level": level,
+        "outcome": outcome,  # auto / approved / denied / timeout / high_denied / needs_approval
+        "result": (result_summary or "")[:200],
+    }
+    try:
+        p = audit_log_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except OSError as e:
+        print(f"[audit] 写审计日志失败: {e}")
