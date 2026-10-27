@@ -1,1 +1,136 @@
-IyBDaGFuZ2Vsb2cKCiMjIHYwLjUuMCDigJQgMjAyNi0xMC0yNwoKQXBwcm92YWwgdGllcnM6IHRvb2wgY2FsbHMgYXJlIGNsYXNzaWZpZWQgYmVmb3JlIHRoZXkgcnVuIOKAlCByZWFkLW9ubHkKYXV0by1leGVjdXRlcywgY2hhbmdlcyBhc2sgb25jZSBvbiBhbiBhcHByb3ZhbCBjYXJkLCBkYW5nZXJvdXMgY2FsbHMKYXJlIHJlZnVzZWQgYnkgZGVmYXVsdC4KCi0gTmV3IGBiYWNrZW5kL2FwcHJvdmFsLnB5YCAoc3RkbGliIG9ubHksIG5vIG5ldyBkZXBlbmRlbmNpZXMpOiB0aHJlZQogIGxldmVscyDigJQgYGxvd2AgYXV0by1leGVjdXRlcyAoYGxpc3RfZmlsZXNgLCBgcmVhZF9maWxlYCwgcmVhZC1vbmx5CiAgY29tbWFuZHMgbGlrZSBgbHNgIC8gYGNhdGAgLyBgZ2l0IHN0YXR1c2AgLyBgZ2l0IGRpZmZgLCBhbmQgYHB5dGVzdGAsCiAgd2hpY2ggcnVucyB0ZXN0cyBhdXRvbWF0aWNhbGx5IGJ5IHRoZSB1c2VyJ3MgY2hvaWNlKSwgYG1lZGl1bWAgbmVlZHMKICBvbmUgY29uZmlybWF0aW9uIChvdmVyd3JpdGluZyBhbiBleGlzdGluZyBmaWxlLCBydW5uaW5nIGNvZGUgbGlrZQogIGBweXRob24geHh4LnB5YCwgYGdpdCBjb21taXRgLCB3cml0aW5nIGBNRU1PUlkubWRgKSwgYGhpZ2hgIGlzCiAgcmVmdXNlZCB3aXRoIG5vIGNhcmQgKGBybWAsIGBzdWRvYCwgYGNobW9kIDc3N2AsIGRvd25sb2FkaW5nIGFuZAogIHBpcGluZyBzdHJhaWdodCBpbnRvIGEgc2hlbGwsIHNlbnNpdGl2ZSBwYXRocyBsaWtlIGAuZW52YCAvIGAucGVtYCkuCiAgQ2xhc3NpZmljYXRpb24gbG9va3Mgb25seSBhdCB0aGUgZmlyc3QgdG9rZW4gcGx1cyBhIGRhbmdlcm91cy1mbGFnCiAgbGlzdCDigJQgbm8gZnVsbCBzaGVsbCBwYXJzaW5nOyB1bnBhcnNlYWJsZSBjb21tYW5kcyBhbmQgY2hhaW5lZAogIGNvbW1hbmRzIChgJiZgIC8gYDtgIC8gYHxgKSBhcmUgZXNjYWxhdGVkIG9uZSBsZXZlbCwgc28gYSBzdXNwaWNpb3VzCiAgY29tbWFuZCBnZXRzIGEgY2FyZCAob3IgYSByZWZ1c2FsKSByYXRoZXIgdGhhbiBhIGZyZWUgcGFzcy4KLSBBcHByb3ZhbCBmbG93IChzdHJlYW1pbmcgb25seSk6IGEgbWVkaXVtLXJpc2sgY2FsbCBwYXVzZXMgdGhlIGxvb3AgYW5kCiAgZW1pdHMgYW4gU1NFIGBhcHByb3ZhbF9yZXF1aXJlZGAgZXZlbnQgKGBhcHByb3ZhbF9pZGAsIHRvb2wsIGFyZ3MsCiAgbGV2ZWwsIHJlYXNvbik7IHRoZSBmcm9udGVuZCBzaG93cyBhIGNhcmQgd2l0aCBBcHByb3ZlIC8gRGVueS4gQXBwcm92ZQogIHJ1bnMgdGhhdCBvbmUgY2FsbCBvbmx5IOKAlCBubyAiYWx3YXlzIGFsbG93Ii4gRGVueSBmZWVkcyBhIGZhaWx1cmUgdGV4dAogIGJhY2sgdG8gdGhlIG1vZGVsLCB3aGljaCByZXRyaWVzIHdpdGggYW5vdGhlciBwbGFuIChyZXVzaW5nIHRoZQogIHYwLjEgZmFpbHVyZS10ZXh0IHNlbGYtY29ycmVjdGlvbjsgbm8gZXhjZXB0aW9uLCBubyA1MDAsIHRoZSBsb29wCiAga2VlcHMgZ29pbmcpLiBQZW5kaW5nIGNhcmRzIGxpdmUgaW4gYW4gaW4tbWVtb3J5IGRpY3Q7IDUgbWludXRlcyB3aXRoCiAgbm8gZGVjaXNpb24gY291bnRzIGFzIGEgZGVuaWFsIChgQVBQUk9WQUxfVElNRU9VVF9TRUNPTkRTYCwgZGVmYXVsdAogIDMwMCksIGFuZCBhIHJlc3RhcnQgZHJvcHMgdW5jb25maXJtZWQgY2FyZHMg4oCUIHRoZSBzYWZlIGRlZmF1bHQgaXMKICBhbHdheXMgZGVueS4gVGhlIG5vbi1zdHJlYW1pbmcgYC9hcGkvY2hhdGAgY2Fubm90IHdhaXQgZm9yIGEgaHVtYW4sCiAgc28gbWVkaXVtL2hpZ2gtcmlzayBjYWxscyB0aGVyZSBhcmUgZGVuaWVkIGluIHRoZSByZXBseSB0ZXh0IHdpdGggYQogIG5vdGUgdGhhdCBzdHJlYW1pbmcgY2FuIGFwcHJvdmUgdGhlbS4KLSBgTUVNT1JZLm1kYCBhdXRvLXdyaXRlIG9wZW5zIGhhbGZ3YXkgKHYwLjQgbGVmdCB0aGlzIGRvb3Igc2h1dCk6IHRoZQogIGFnZW50IG1heSBwcm9wb3NlIGEgbWVtb3J5IHdyaXRlLCBidXQgaXQgYWx3YXlzIGdvZXMgdGhyb3VnaCBhIG1lZGl1bQogIGFwcHJvdmFsIGNhcmQgYW5kIG9ubHkgbGFuZHMgaWYgdGhlIHVzZXIgYXBwcm92ZXM7IG90aGVyd2lzZSB0aGUKICBtYW51YWwtZWRpdCBlbnRyeSBzdGF5cyBhcyBpdCB3YXMuIFRoZSB0b29sIGxheWVyIHN0aWxsIHJlZnVzZXMKICB1bmFwcHJvdmVkIGBNRU1PUlkubWRgIHdyaXRlcyBldmVuIG9uIGEgZGlyZWN0IGNhbGwuCi0gQXVkaXQgbG9nOiBldmVyeSB0b29sIGNhbGwgYXBwZW5kcyBvbmUgSlNPTiBMaW5lcyByb3cgdG8KICBgZGF0YS9hdWRpdC5sb2dgICh0aW1lc3RhbXAsIHNlc3Npb24sIHRvb2wsIGFyZ3Mgc3VtbWFyeSwgbGV2ZWwsCiAgb3V0Y29tZSBgYXV0b2AgLyBgYXBwcm92ZWRgIC8gYGRlbmllZGAgLyBgdGltZW91dGAgLyBgaGlnaF9kZW5pZWRgIC8KICBgbmVlZHNfYXBwcm92YWxgLCByZXN1bHQgc3VtbWFyeSkg4oCUIHNlcGFyYXRlIGZyb20gdGhlIFNRTGl0ZSBzZXNzaW9uCiAgREIsIGdyZXBwYWJsZSBhdCBhIGdsYW5jZSwgbm90IGNvbW1pdHRlZCB0byBnaXQuCi0gSG9uZXN0IGxpbWl0LCBkb2N1bWVudGVkOiB0aGUgY2xhc3NpZmllciBpcyBoZXVyaXN0aWMsIG5vdCBmb3JtYWwKICB2ZXJpZmljYXRpb24g4oCUIGEgbW9kZWwgY2FuIHJlcGhyYXNlIGl0cyB3YXkgYXJvdW5kIHRoZSBibG9ja2xpc3QuCiAgVGhlIHJlYWwgYmFja3N0b3AgaXMgc3RpbGwgdGhlIERvY2tlciBjb250YWluZXIgcGx1cyB0aGUgd29ya3NwYWNlCiAgc2FuZGJveDsgYXBwcm92YWwgaXMgb25lIG1vcmUgbGF5ZXIsIG5vdCB0aGUgb25seSBvbmUuCi0gVmVyaWZpZWQ6IHB5dGVzdCAyOSBwYXNzZWQgKDEzIGV4aXN0aW5nICsgMTYgbmV3IGFwcHJvdmFsIHRlc3RzOgogIGNsYXNzaWZpZXIsIGFwcHJvdmFsIHN0b3JlLCB0aW1lb3V0LCB0b29sLWxheWVyIGd1YXJkcywgYXVkaXQgbG9nLAogIG5vbi1zdHJlYW1pbmcgZGVuaWFsLCBhcHByb3ZhbCBlbmRwb2ludCk7IG1vY2stTExNIGVuZC10by1lbmQgMTgKICBjaGVja3MgcGFzc2VkIChhcHByb3ZlIHdyaXRlcyB0aGUgZmlsZSBhbmQgdGhlIGNvbnZlcnNhdGlvbiBjb250aW51ZXMsCiAgZGVueSBjaGFuZ2VzIHRoZSBwbGFuIHdpdGhvdXQgZXJyb3IsIGhpZ2gtcmlzayBnZXRzIG5vIGNhcmQsIGBweXRlc3RgCiAgcnVucyBhdXRvbWF0aWNhbGx5LCBgTUVNT1JZLm1kYCB3cml0ZSBnb2VzIHRocm91Z2ggYSBjYXJkLCBhdWRpdCBsb2cKICBjb3ZlcnMgYWxsIGZvdXIgb3V0Y29tZXMsIG5vbi1zdHJlYW1pbmcgaGlnaC1yaXNrIGRlbmllZCkuCgojIyB2MC40LjAg4oCUIDIwMjYtMTAtMjYKCkxvbmctdGVybSBtZW1vcnk6IGEgc2luZ2xlIGBhZ2VudF93b3Jrc3BhY2UvTUVNT1JZLm1kYCBmaWxlLCBpbmplY3RlZCBhcyBhCnNlY29uZCBzeXN0ZW0gbWVzc2FnZSBvbiBldmVyeSByZXF1ZXN0LgoKLSBOZXcgYGJhY2tlbmQvbWVtb3J5LnB5YCAoc3RkbGliIG9ubHksIG5vIG5ldyBkZXBlbmRlbmNpZXMpOiByZWFkcwogIGBhZ2VudF93b3Jrc3BhY2UvTUVNT1JZLm1kYCBmcmVzaCBvbiBldmVyeSByZXF1ZXN0IChubyBjYWNoZSwgc28gYW4gZWRpdAogIHRha2VzIGVmZmVjdCBvbiB0aGUgbmV4dCBtZXNzYWdlKSBhbmQgaW5qZWN0cyBpdCBhZnRlciBgU1lTVEVNX1BST01QVGAsCiAgYmVmb3JlIGhpc3Rvcnkg4oCUIGBbc3lzdGVtLCBtZW1vcnksICpoaXN0b3J5LCB1c2VyXWAuIFR3by10aWVyIG1lbW9yeToKICBTUUxpdGUgaG9sZHMgdGhlIHNob3J0LXRlcm0gc2Vzc2lvbiAobGFzdCAyMCByb3VuZHMpLCBgTUVNT1JZLm1kYCBob2xkcwogIGxvbmctdGVybSBwcmVmZXJlbmNlcy4gSW5qZWN0aW9uIGlzIGNhcHBlZCBhdCB+MjAwMCBjaGFyYWN0ZXJzCiAgKGBNRU1PUllfTUFYX0NIQVJTYCwgZGVmYXVsdCAyMDAwKTsgYSBtaXNzaW5nIG9yIGVtcHR5IGZpbGUgbWVhbnMgbm8KICBpbmplY3Rpb24gYW5kIG5vIGVycm9yLCBiZWhhdmluZyBleGFjdGx5IGxpa2UgdjAuMy4KLSBNYW51YWwgZWRpdCBvbmx5OiB0aGUgYWdlbnQgZG9lcyBub3QgYXV0by13cml0ZSBtZW1vcnkuIGB3cml0ZV9maWxlYAogIHRhcmdldGluZyBgTUVNT1JZLm1kYCBpcyByZWZ1c2VkIGJ5IHRoZSB0b29sIGxheWVyICgicGxlYXNlIGVkaXQgaXQKICBtYW51YWxseSIpLCBzbyBhIG1pc3Rha2VuIG1vZGVsIHdyaXRlIGNhbm5vdCBwb2xsdXRlIGV2ZXJ5IGZ1dHVyZQogIGNvbnZlcnNhdGlvbi4gQXV0by13cml0ZSBzdGF5cyBjbG9zZWQgdW50aWwgdGhlIGFwcHJvdmFsLXRpZXIgdmVyc2lvbi4KLSBgTUVNT1JZLm1kYCBzaGlwcyB3aXRoIGEgc3RhcnRlciBmaWxlIChDaGluZXNlIHJlcGxpZXMsIEZhc3RBUEkgKwogIFpoaXB1IEdMTS00LjYpIGFuZCBpcyB0cmFja2VkIGluIGdpdCAoYC5naXRpZ25vcmVgIG5vdyBleGNlcHRzIGl0IOKAlAogIHRoZSBvbGQgYGFnZW50X3dvcmtzcGFjZS8qYCBydWxlIHdvdWxkIGhhdmUgc2lsZW50bHkgaWdub3JlZCBpdCkuCi0gVmVyaWZpZWQ6IHB5dGVzdCAxMyBwYXNzZWQgKDcgZXhpc3RpbmcgKyA2IG5ldyBtZW1vcnkgdGVzdHM6IG1pc3NpbmcgLwogIGVtcHR5IGZpbGUsIGluamVjdGlvbiBjb250ZW50LCB0cnVuY2F0aW9uIGF0IHRoZSBjYXAsIHRoZSB3cml0ZSBndWFyZCwKICBhbmQgdGhlIGBbc3lzdGVtLCBtZW1vcnksICpoaXN0b3J5LCB1c2VyXWAgb3JkZXIpOyBtb2NrLUxMTQogIGVuZC10by1lbmQgY2hlY2tzIHBhc3NlZCAoc3RyZWFtaW5nIGFuZCBub24tc3RyZWFtaW5nIGJvdGggaW5qZWN0IHRoZQogIG1lbW9yeSBhcyB0aGUgc2Vjb25kIHN5c3RlbSBtZXNzYWdlOyBkZWxldGluZyB0aGUgZmlsZSByZXN0b3JlcwogIHYwLjMgYmVoYXZpb3Igd2l0aCBubyBtZW1vcnkgbWVzc2FnZTsgdGhlIHdyaXRlIGd1YXJkIGhvbGRzIGxpdmUpLgoKIyMgdjAuMy4wIOKAlCAyMDI2LTEwLTI1CgpQZXJzaXN0ZW50IHNlc3Npb25zIChTUUxpdGUpLiBSZWZyZXNoIHRoZSBwYWdlIG9yIHJlc3RhcnQgdGhlIHNlcnZlciBhbmQKeW91ciBoaXN0b3J5IGlzIHN0aWxsIHRoZXJlLgoKLSBOZXcgYGJhY2tlbmQvc3RvcmFnZS5weWAgKHN0ZGxpYiBgc3FsaXRlM2AsIG5vIG5ldyBkZXBlbmRlbmNpZXMpOiB0YWJsZXMKICBgc2Vzc2lvbnNgIChzZXJ2ZXItZ2VuZXJhdGVkIFVVSUQsIHRpdGxlIGZyb20gdGhlIGZpcnN0IG1lc3NhZ2UpIGFuZAogIGBtZXNzYWdlc2AgKHVzZXIvYXNzaXN0YW50IHJvdW5kcyBvbmx5IOKAlCBubyBpbnRlcm5hbCB0b29sIG1lc3NhZ2VzLCBzbwogIHRoZXJlIGlzIG5vIGB0b29sX2NhbGxfaWRgIGFsaWdubWVudCBwcm9ibGVtIG9uIHJlc3RvcmUpLiBEYXRhYmFzZSBmaWxlCiAgaXMgYGRhdGEvYWdlbnQuZGJgIChgREFUQV9ESVJgIGVudiwgYC4vZGF0YWAgYnkgZGVmYXVsdCk7IHRoZQogIGRvY2tlci1jb21wb3NlIHZvbHVtZSBgLi9kYXRhOi9hcHAvZGF0YWAga2VlcHMgaXQgYWNyb3NzIHJlc3RhcnRzLCBhbmQKICBgZGF0YS9gIGlzIGdpdC1pZ25vcmVkLgotIGBDaGF0SW5gIGdhaW5zIG9wdGlvbmFsIGBzZXNzaW9uX2lkYC4gV2l0aG91dCBvbmUgdGhlIHNlcnZlciBjcmVhdGVzIGEKICBuZXcgc2Vzc2lvbiBhbmQgcmV0dXJucyBpdHMgaWQgKGl0IG5ldmVyIHBvbGx1dGVzIGFuIGV4aXN0aW5nIHNlc3Npb24pOwogIHdpdGggb25lLCB0aGUgc2VydmVyJ3Mgc3RvcmVkIGhpc3RvcnkgdGFrZXMgcHJpb3JpdHkgb3ZlciB0aGUKICBmcm9udGVuZC1zZW50IGhpc3RvcnkuIE5ldyBlbmRwb2ludHM6IGBHRVQgL2FwaS9zZXNzaW9uc2AgKGxpc3QpIGFuZAogIGBHRVQgL2FwaS9zZXNzaW9ucy97aWR9L21lc3NhZ2VzYCAocmVzdG9yZSkuIFRoZSBzdHJlYW0gZW1pdHMgYQogIGBzZXNzaW9uYCBldmVudCBmaXJzdCBhbmQgdGhlIGBkb25lYCBldmVudCBjYXJyaWVzIGBzZXNzaW9uX2lkYDsKICBgL2FwaS9jaGF0YCBhbHNvIHBlcnNpc3RzIGFuZCByZXR1cm5zIGBzZXNzaW9uX2lkYC4KLSBGcm9udGVuZCBzdG9yZXMgYHNlc3Npb25faWRgIGluIGBsb2NhbFN0b3JhZ2VgIGFuZCByZXN0b3JlcyB0aGUgbGFzdAogIHJvdW5kcyBvbiBsb2FkICh1bmtub3duIGlkIOKGkiA0MDQg4oaSIHN0YXJ0IGEgZnJlc2ggc2Vzc2lvbikuCi0gSGlzdG9yeSBidWRnZXQ6IG9ubHkgdGhlIG1vc3QgcmVjZW50IDIwIHJvdW5kcyBhcmUgbG9hZGVkIHBlciByZXF1ZXN0CiAgKGBISVNUT1JZX1JPVU5EU2AsIGRlZmF1bHQgMjApOyBvbGRlciByb3VuZHMgc3RheSBpbiBTUUxpdGUsIHNvCiAgY2hhbmdpbmcgTiBpcyBhIG9uZS1saW5lIGNoYW5nZS4KLSBWZXJpZmllZDogcHl0ZXN0IDcgcGFzc2VkICgxIGV4aXN0aW5nICsgNiBuZXcgc3RvcmFnZSB0ZXN0cyk7IG1vY2stTExNCiAgZW5kLXRvLWVuZCBjaGVja3MgcGFzc2VkICh0d28gc3RyZWFtaW5nIHJvdW5kcywgcmVzdG9yZSB2aWEgR0VULAogIG5vbi1zdHJlYW1pbmcgd2l0aG91dCBzZXNzaW9uIGlkLCB1bmtub3duIHNlc3Npb24gaWQsIDQwNCBvbiB1bmtub3duCiAgc2Vzc2lvbiwgaGlzdG9yeSBzdGlsbCBwcmVzZW50IGFmdGVyIGEgdXZpY29ybiByZXN0YXJ0KS4KCiMjIHYwLjIuMCDigJQgMjAyNi0xMC0yNAoKU3RyZWFtaW5nIHJlc3BvbnNlcyAoU1NFKSB3aXRoIGxpdmUgdG9vbCBsb2dzLgoKLSBOZXcgYFBPU1QgL2FwaS9jaGF0L3N0cmVhbWAgZW5kcG9pbnQ6IFNlcnZlci1TZW50IEV2ZW50cyB3aXRoIHRocmVlIGV2ZW50CiAgdHlwZXMg4oCUIGB0b2tlbmAgKGluY3JlbWVudGFsIHJlcGx5IHRleHQpLCBgdG9vbGAgLyBgdG9vbF9yZXN1bHRgIChsaXZlIHRvb2wKICBleGVjdXRpb24gbG9nKSwgYW5kIGBkb25lYCAoZmluYWwgcmVwbHkpLiBUaGUgb3JpZ2luYWwgYC9hcGkvY2hhdGAgaXMga2VwdAogIHVuY2hhbmdlZCBhcyBhIG5vbi1zdHJlYW1pbmcgZmFsbGJhY2suCi0gU3RyZWFtaW5nIHRvb2wtY2FsbCBhY2N1bXVsYXRpb246IGB0b29sX2NhbGxzYCBhcnJpdmUgYXMgZnJhZ21lbnRlZCBkZWx0YXMKICBwZXIgaW5kZXggYW5kIGFyZSByZWFzc2VtYmxlZCAoaWQgKyBuYW1lICsgYXJndW1lbnRzKSBiZWZvcmUgZXhlY3V0aW9uOwogIHJlc3VsdHMgYXJlIGZlZCBiYWNrIGFuZCB0aGUgbG9vcCBjb250aW51ZXMgc3RyZWFtaW5nLiBWZXJpZmllZCBhZ2FpbnN0IGEKICBtb2NrIHN0cmVhbWluZyBzZXJ2ZXIgKHNwbGl0IGRlbHRhcykgYW5kIHRoZSByZWFsIFpoaXB1IEdMTS00LjYgQVBJLgotIEZyb250ZW5kIGNvbnN1bWVzIHRoZSBzdHJlYW0gdmlhIGBSZWFkYWJsZVN0cmVhbWA6IHRva2VucyBhcHBlbmQgdG8gdGhlCiAgcmVwbHkgYnViYmxlIGFzIHRoZXkgYXJyaXZlLCB0b29sIGV2ZW50cyBpbnNlcnQgbG9nIGxpbmVzIGluIG9yZGVyLgoKIyMgdjAuMS4wIOKAlCAyMDI2LTEwLTIzCgpGaXJzdCByZWxlYXNhYmxlIHZlcnNpb24uCgotIEFnZW50IGxvb3A6IEZhc3RBUEkgb3JjaGVzdHJhdG9yIGNhbGxpbmcgYW4gT3BlbkFJLWNvbXBhdGlibGUgTExNIHdpdGggdG9vbCBjYWxsaW5nCi0gVG9vbHM6IGBsaXN0X2ZpbGVzYCwgYHJlYWRfZmlsZWAsIGB3cml0ZV9maWxlYCwgYGV4ZWNfY29tbWFuZGAgaW4gYSBzYW5kYm94ZWQgd29ya3NwYWNlCiAgKHBhdGgtdHJhdmVyc2FsIGJsb2NraW5nIHZlcmlmaWVkIGJ5IHRlc3RzKQotIFdlYiBjaGF0IGZyb250ZW5kIHdpdGggdG9vbC1jYWxsIGxvZyBkaXNwbGF5IGFuZCBBQ0NFU1NfVE9LRU4gcHJvbXB0Ci0gYC9oZWFsdGhgIGVuZHBvaW50OyBjbGVhciA1MDIgZXJyb3Igd2hlbiB0aGUgTExNIEFQSSBpcyBtaXNjb25maWd1cmVkCi0gRG9ja2VyICsgZG9ja2VyLWNvbXBvc2UgZGVwbG95bWVudCwgb3B0aW9uYWwgY29kZS1zZXJ2ZXIgcHJvZmlsZQotIEFyY2hpdGVjdHVyZSBub3RlcyBpbiBgZG9jcy9BUkNISVRFQ1RVUkUubWRgCg==
+# Changelog
+
+## v0.5.0 — 2026-10-27
+
+Approval tiers: tool calls are classified before they run — read-only
+auto-executes, changes ask once on an approval card, dangerous calls
+are refused by default.
+
+- New `backend/approval.py` (stdlib only, no new dependencies): three
+  levels — `low` auto-executes (`list_files`, `read_file`, read-only
+  commands like `ls` / `cat` / `git status` / `git diff`, and `pytest`,
+  which runs tests automatically by the user's choice), `medium` needs
+  one confirmation (overwriting an existing file, running code like
+  `python xxx.py`, `git commit`, writing `MEMORY.md`), `high` is
+  refused with no card (`rm`, `sudo`, `chmod 777`, downloading and
+  piping straight into a shell, sensitive paths like `.env` / `.pem`).
+  Classification looks only at the first token plus a dangerous-flag
+  list — no full shell parsing; unparseable commands and chained
+  commands (`&&` / `;` / `|`) are escalated one level, so a suspicious
+  command gets a card (or a refusal) rather than a free pass.
+- Approval flow (streaming only): a medium-risk call pauses the loop and
+  emits an SSE `approval_required` event (`approval_id`, tool, args,
+  level, reason); the frontend shows a card with Approve / Deny. Approve
+  runs that one call only — no "always allow". Deny feeds a failure text
+  back to the model, which retries with another plan (reusing the
+  v0.1 failure-text self-correction; no exception, no 500, the loop
+  keeps going). Pending cards live in an in-memory dict; 5 minutes with
+  no decision counts as a denial (`APPROVAL_TIMEOUT_SECONDS`, default
+  300), and a restart drops unconfirmed cards — the safe default is
+  always deny. The non-streaming `/api/chat` cannot wait for a human,
+  so medium/high-risk calls there are denied in the reply text with a
+  note that streaming can approve them.
+- `MEMORY.md` auto-write opens halfway (v0.4 left this door shut): the
+  agent may propose a memory write, but it always goes through a medium
+  approval card and only lands if the user approves; otherwise the
+  manual-edit entry stays as it was. The tool layer still refuses
+  unapproved `MEMORY.md` writes even on a direct call.
+- Audit log: every tool call appends one JSON Lines row to
+  `data/audit.log` (timestamp, session, tool, args summary, level,
+  outcome `auto` / `approved` / `denied` / `timeout` / `high_denied` /
+  `needs_approval`, result summary) — separate from the SQLite session
+  DB, greppable at a glance, not committed to git.
+- Honest limit, documented: the classifier is heuristic, not formal
+  verification — a model can rephrase its way around the blocklist.
+  The real backstop is still the Docker container plus the workspace
+  sandbox; approval is one more layer, not the only one.
+- Verified: pytest 29 passed (13 existing + 16 new approval tests:
+  classifier, approval store, timeout, tool-layer guards, audit log,
+  non-streaming denial, approval endpoint); mock-LLM end-to-end 18
+  checks passed (approve writes the file and the conversation continues,
+  deny changes the plan without error, high-risk gets no card, `pytest`
+  runs automatically, `MEMORY.md` write goes through a card, audit log
+  covers all four outcomes, non-streaming high-risk denied).
+
+## v0.4.0 — 2026-10-26
+
+Long-term memory: a single `agent_workspace/MEMORY.md` file, injected as a
+second system message on every request.
+
+- New `backend/memory.py` (stdlib only, no new dependencies): reads
+  `agent_workspace/MEMORY.md` fresh on every request (no cache, so an edit
+  takes effect on the next message) and injects it after `SYSTEM_PROMPT`,
+  before history — `[system, memory, *history, user]`. Two-tier memory:
+  SQLite holds the short-term session (last 20 rounds), `MEMORY.md` holds
+  long-term preferences. Injection is capped at ~2000 characters
+  (`MEMORY_MAX_CHARS`, default 2000); a missing or empty file means no
+  injection and no error, behaving exactly like v0.3.
+- Manual edit only: the agent does not auto-write memory. `write_file`
+  targeting `MEMORY.md` is refused by the tool layer ("please edit it
+  manually"), so a mistaken model write cannot pollute every future
+  conversation. Auto-write stays closed until the approval-tier version.
+- `MEMORY.md` ships with a starter file (Chinese replies, FastAPI +
+  Zhipu GLM-4.6) and is tracked in git (`.gitignore` now excepts it —
+  the old `agent_workspace/*` rule would have silently ignored it).
+- Verified: pytest 13 passed (7 existing + 6 new memory tests: missing /
+  empty file, injection content, truncation at the cap, the write guard,
+  and the `[system, memory, *history, user]` order); mock-LLM
+  end-to-end checks passed (streaming and non-streaming both inject the
+  memory as the second system message; deleting the file restores
+  v0.3 behavior with no memory message; the write guard holds live).
+
+## v0.3.0 — 2026-10-25
+
+Persistent sessions (SQLite). Refresh the page or restart the server and
+your history is still there.
+
+- New `backend/storage.py` (stdlib `sqlite3`, no new dependencies): tables
+  `sessions` (server-generated UUID, title from the first message) and
+  `messages` (user/assistant rounds only — no internal tool messages, so
+  there is no `tool_call_id` alignment problem on restore). Database file
+  is `data/agent.db` (`DATA_DIR` env, `./data` by default); the
+  docker-compose volume `./data:/app/data` keeps it across restarts, and
+  `data/` is git-ignored.
+- `ChatIn` gains optional `session_id`. Without one the server creates a
+  new session and returns its id (it never pollutes an existing session);
+  with one, the server's stored history takes priority over the
+  frontend-sent history. New endpoints: `GET /api/sessions` (list) and
+  `GET /api/sessions/{id}/messages` (restore). The stream emits a
+  `session` event first and the `done` event carries `session_id`;
+  `/api/chat` also persists and returns `session_id`.
+- Frontend stores `session_id` in `localStorage` and restores the last
+  rounds on load (unknown id → 404 → start a fresh session).
+- History budget: only the most recent 20 rounds are loaded per request
+  (`HISTORY_ROUNDS`, default 20); older rounds stay in SQLite, so
+  changing N is a one-line change.
+- Verified: pytest 7 passed (1 existing + 6 new storage tests); mock-LLM
+  end-to-end checks passed (two streaming rounds, restore via GET,
+  non-streaming without session id, unknown session id, 404 on unknown
+  session, history still present after a uvicorn restart).
+
+## v0.2.0 — 2026-10-24
+
+Streaming responses (SSE) with live tool logs.
+
+- New `POST /api/chat/stream` endpoint: Server-Sent Events with three event
+  types — `token` (incremental reply text), `tool` / `tool_result` (live tool
+  execution log), and `done` (final reply). The original `/api/chat` is kept
+  unchanged as a non-streaming fallback.
+- Streaming tool-call accumulation: `tool_calls` arrive as fragmented deltas
+  per index and are reassembled (id + name + arguments) before execution;
+  results are fed back and the loop continues streaming. Verified against a
+  mock streaming server (split deltas) and the real Zhipu GLM-4.6 API.
+- Frontend consumes the stream via `ReadableStream`: tokens append to the
+  reply bubble as they arrive, tool events insert log lines in order.
+
+## v0.1.0 — 2026-10-23
+
+First releasable version.
+
+- Agent loop: FastAPI orchestrator calling an OpenAI-compatible LLM with tool calling
+- Tools: `list_files`, `read_file`, `write_file`, `exec_command` in a sandboxed workspace
+  (path-traversal blocking verified by tests)
+- Web chat frontend with tool-call log display and ACCESS_TOKEN prompt
+- `/health` endpoint; clear 502 error when the LLM API is misconfigured
+- Docker + docker-compose deployment, optional code-server profile
+- Architecture notes in `docs/ARCHITECTURE.md`
