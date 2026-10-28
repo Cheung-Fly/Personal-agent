@@ -1,5 +1,54 @@
 # Changelog
 
+## v0.6.0 — 2026-10-28
+
+Context management: token estimation and a budget that truncates the
+oldest history rounds before they reach the model.
+
+- New `backend/context.py` (stdlib only, no new dependencies):
+  `estimate_tokens` converts characters to tokens with a mixed
+  heuristic — about 4 characters per token for English, about
+  1.5–2 per token for Chinese (1.75 in the middle) — explicitly an
+  estimate, not exact tokenization (there is no stdlib tokenizer).
+  `truncate_history` drops the oldest complete rounds (user +
+  assistant together) until history + long-term memory fits the
+  budget; the system prompt, the memory message and the latest round
+  are never dropped. `apply_budget` is the single integration point
+  over the assembled `[system, memory?, *history, user]` list.
+- Budget: `CONTEXT_TOKEN_BUDGET` (default 8000 tokens) counts history
+  + memory only — the system prompt and the current user message are
+  always in and never counted. At 20 rounds ≈ 6k tokens a normal
+  conversation never triggers it; it only bites when long rounds or
+  big tool outputs inflate the context. Storage is untouched
+  (`storage.py` not modified): all 20 rounds stay in SQLite, only
+  the assembled context is trimmed.
+- Visibility: the streaming `done` event now carries `context_tokens`
+  (estimated, budget scope) and `dropped_rounds` (how many old rounds
+  were dropped this turn); `/api/chat` returns the same two fields.
+  A truncation also logs one line (`[context] 超预算，丢弃 N 轮旧历史`).
+  The frontend needs no change — it ignores the extra fields.
+- Real usage is now recorded: `call_llm` (via `call_llm_with_usage`)
+  keeps the response `usage.prompt_tokens` and logs one line per turn
+  (`[context] 真实 prompt_tokens=...`); if the provider returns no
+  `usage`, the estimated `context_tokens` is used as the fallback.
+  Verified against the real Zhipu GLM-4.6 API, which returns `usage`
+  with `prompt_tokens`. The numbers are logged only — cost statistics
+  stay in the roadmap's third segment, where these logs get used.
+- Honest limits, documented: the token count is a character-based
+  heuristic, so the budget is approximate, not exact; truncation only
+  happens at context-assembly time, so tool results produced inside
+  the current turn are not trimmed mid-loop; streaming usage is not
+  captured yet (that needs `stream_options: include_usage`, unverified
+  with GLM).
+- Verified: pytest 45 passed (29 existing + 16 new context tests:
+  estimation in English/Chinese/mixed, truncation order, latest-round
+  protection, memory counted but never dropped, shared
+  `_build_messages` path); mock-LLM end-to-end 13 checks passed
+  (25 rounds with a 200-token budget: `dropped_rounds` and
+  `context_tokens` match the value computed from the real history,
+  latest round kept, memory message present, storage still holds the
+  last 20 rounds, real `usage` logged; default budget drops nothing).
+
 ## v0.5.0 — 2026-10-27
 
 Approval tiers: tool calls are classified before they run — read-only
