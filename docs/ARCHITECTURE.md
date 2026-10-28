@@ -19,6 +19,7 @@
 ┌──────────────────────▼──────────────────────────────────┐
 │  编排层 Orchestration        backend/main.py (FastAPI)   │
 │  - 拼上下文: System Prompt + 历史 + 工具 Schema          │
+│    （v0.6：组装完过预算截断 context.py，超了从最旧轮次丢）│
 │  - Agent Loop: 调模型 → 有 tool_call 就执行 → 回喂结果    │
 │    → 再调模型 … 直到无 tool_call 或达 MAX_TOOL_ROUNDS     │
 │  - 鉴权: ACCESS_TOKEN (可选) / 超时 / 轮数上限            │
@@ -44,7 +45,7 @@
 ## 3. 一次请求的时序
 
 1. 浏览器 POST /api/chat {message, history}
-2. 编排层组装 messages = [system, memory（有 MEMORY.md 时）, ...history, user]
+2. 编排层组装 messages = [system, memory（有 MEMORY.md 时）, ...history, user]，再过一遍 v0.6 预算截断：history + memory 的估算 token 超过 CONTEXT_TOKEN_BUDGET（默认 8000）就从最旧轮次整轮丢，system / 记忆 / 最新一轮永不丢；`done` 事件带 `context_tokens`（估算）与 `dropped_rounds`（丢了几轮）
 3. 调用模型 API（带 tools schema）
 4. 模型返回：
    - 纯文本 → 作为最终回复返回浏览器，结束
@@ -61,6 +62,7 @@
 | 配置/密钥 | .env（不进 Git） | LLM_API_KEY、BASE_URL、MODEL、ACCESS_TOKEN |
 | 长期记忆 | agent_workspace/MEMORY.md | v0.4 已接入，每次请求作为第二条 system 消息注入（上限 2000 字符，手动编辑）；v0.5 起 Agent 可提议改写，但须经审批卡确认才落盘 |
 | 审计日志 | data/audit.log（JSON Lines，不进 git） | v0.5：每次工具调用记一行（时间、会话、工具、参数摘要、风险级、通过/拒绝/自动、结果摘要） |
+| 上下文预算 | 环境变量 + 每次请求的 done 事件 | v0.6：CONTEXT_TOKEN_BUDGET 默认 8000（只算 history + 记忆），组装时超预算从最旧轮次整轮截断；真实 `usage.prompt_tokens` 记一行日志（`[context] 真实 prompt_tokens=...`），供第三段成本统计用 |
 
 ## 5. 安全设计
 
@@ -86,7 +88,7 @@
 ## 7. 扩展路线
 
 - v1.1 流式输出 SSE + 工具日志实时推送
-- v1.2 会话持久化 SQLite（v0.3 ✓）+ MEMORY.md 长期记忆注入（v0.4 ✓）
+- v1.2 会话持久化 SQLite（v0.3 ✓）+ MEMORY.md 长期记忆注入（v0.4 ✓）+ 上下文预算截断与 token 估算（v0.6 ✓，只发生在组装时，库里 20 轮不动）
 - v1.3 审批卡：exec / 删除类工具执行前前端确认（v0.5 ✓，删除工具本身还没加，留到以后直接进高风险级）
 - v2.0 工具层改 MCP Server，工具可被任意 MCP 客户端复用；增加 git、Playwright 浏览器、cron 定时工具
 - v2.1 Tauri 打包桌面客户端（内嵌网页，连接远程后端）
