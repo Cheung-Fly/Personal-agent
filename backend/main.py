@@ -18,6 +18,7 @@ from .approval import (
     log_audit,
     wait_for_decision,
 )
+from .context import apply_budget
 from .memory import memory_system_message
 from .storage import (
     DEFAULT_HISTORY_ROUNDS,
@@ -72,22 +73,43 @@ def _resolve_context(body: ChatIn, session_id: str) -> list[dict]:
     return body.history
 
 
-def _build_messages(body: ChatIn, session_id: str) -> list[dict]:
+def _build_messages_with_budget(body: ChatIn, session_id: str) -> tuple[list[dict], dict]:
     """组装发给模型的完整上下文：[system, memory?, *history, user]。
 
     memory 是第二条 system 消息（v0.4 长期记忆，有 MEMORY.md 才有）；
-    history 按 _resolve_context 来。/api/chat 与 stream_agent 共用，
-    避免两处组装口径漂移。"""
+    history 按 _resolve_context 来。组装完过一遍 v0.6 预算截断
+    （context.apply_budget），返回 (messages, {"context_tokens": 估算值,
+    "dropped_rounds": 本轮丢掉的旧轮数})。/api/chat 与 stream_agent 共用，
+    避免两处组装口径漂移。截断只发生在组装时，storage.py 一行不改。
+    """
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     memory = memory_system_message()
     if memory:
         messages.append(memory)
     messages.extend(_resolve_context(body, session_id))
     messages.append({"role": "user", "content": body.message})
+    messages, stats = apply_budget(messages)
+    if stats["dropped_rounds"]:
+        print(f"[context] 超预算，丢弃 {stats['dropped_rounds']} 轮旧历史"
+              f"（context_tokens={stats['context_tokens']}）")
+    return messages, stats
+
+
+def _build_messages(body: ChatIn, session_id: str) -> list[dict]:
+    """只取 messages 部分（不带预算统计），供只需要上下文的地方用。"""
+    messages, _ = _build_messages_with_budget(body, session_id)
     return messages
 
 
-async def call_llm(messages: list[dict]) -> dict:
+# 最近一次模型响应的 usage 字段（v0.6 开始记录，供第三段成本统计用；
+# 单人使用，模块级变量够用）。响应没带 usage 时为 None。
+LAST_LLM_USAGE: dict | None = None
+
+
+async def call_llm_with_usage(messages: list[dict]) -> tuple[dict, dict | None]:
+    """调一次模型，返回 (message, usage)。usage 是响应里的 usage 字段
+    （prompt_tokens 等），没有就返回 None——调用方用估算值兜底。"""
+    global LAST_LLM_USAGE
     async with httpx.AsyncClient(timeout=120) as client:
         r = await client.post(
             f"{LLM_BASE_URL}/chat/completions",
@@ -95,7 +117,27 @@ async def call_llm(messages: list[dict]) -> dict:
             json={"model": LLM_MODEL, "messages": messages, "tools": TOOL_SCHEMAS},
         )
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]
+        data = r.json()
+        LAST_LLM_USAGE = data.get("usage") or None
+        return data["choices"][0]["message"], LAST_LLM_USAGE
+
+
+def _log_llm_usage(context_tokens: int) -> None:
+    """记一行真实用量日志：响应带 usage 就记 prompt_tokens，没带就用
+    估算的 context_tokens 兜底。真实用量留给第三段的成本统计用，
+    这里只记、不统计。"""
+    usage = LAST_LLM_USAGE or {}
+    prompt_tokens = usage.get("prompt_tokens")
+    if prompt_tokens is not None:
+        print(f"[context] 真实 prompt_tokens={prompt_tokens}"
+              f"（估算 context_tokens={context_tokens}）")
+    else:
+        print(f"[context] 响应未带 usage，prompt_tokens 用估算值 {context_tokens}")
+
+
+async def call_llm(messages: list[dict]) -> dict:
+    msg, _ = await call_llm_with_usage(messages)
+    return msg
 
 
 @app.get("/health")
@@ -113,7 +155,7 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
     # 顺序注意：先按库里历史组装上下文，再把本轮 user 落库——
     # 反过来会把本轮 user 在上下文里存两份。
     session_id = ensure_session(body.session_id, title_hint=body.message)
-    messages = _build_messages(body, session_id)
+    messages, ctx = _build_messages_with_budget(body, session_id)
     save_message(session_id, "user", body.message)
     tool_log = []
     for _ in range(MAX_ROUNDS):
@@ -126,7 +168,10 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
         if not tool_calls:  # 没有工具调用 = 最终回复
             reply = msg.get("content") or ""
             save_message(session_id, "assistant", reply)
-            return {"reply": reply, "tool_log": tool_log, "session_id": session_id}
+            _log_llm_usage(ctx["context_tokens"])
+            return {"reply": reply, "tool_log": tool_log, "session_id": session_id,
+                    "context_tokens": ctx["context_tokens"],
+                    "dropped_rounds": ctx["dropped_rounds"]}
         for call in tool_calls:
             name = call["function"]["name"]
             args = json.loads(call["function"]["arguments"] or "{}")
@@ -146,7 +191,10 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": result})
     reply = "已达到最大工具轮数，任务暂停，请检查进度。"
     save_message(session_id, "assistant", reply)
-    return {"reply": reply, "tool_log": tool_log, "session_id": session_id}
+    _log_llm_usage(ctx["context_tokens"])
+    return {"reply": reply, "tool_log": tool_log, "session_id": session_id,
+            "context_tokens": ctx["context_tokens"],
+            "dropped_rounds": ctx["dropped_rounds"]}
 
 
 def _sse(payload: dict) -> str:
@@ -166,7 +214,7 @@ async def stream_agent(body: ChatIn, session_id: str):
     done 时落库，中途失败不写 assistant，避免半截回复污染下一轮。
     """
     yield _sse({"type": "session", "session_id": session_id})
-    messages = _build_messages(body, session_id)
+    messages, ctx = _build_messages_with_budget(body, session_id)
     # 顺序注意：先组装上下文再落库，否则本轮 user 会在上下文里出现两次。
     save_message(session_id, "user", body.message)
     for _ in range(MAX_ROUNDS):
@@ -215,7 +263,9 @@ async def stream_agent(body: ChatIn, session_id: str):
         if not tool_calls:
             reply = "".join(content_parts)
             save_message(session_id, "assistant", reply)
-            yield _sse({"type": "done", "reply": reply, "session_id": session_id})
+            yield _sse({"type": "done", "reply": reply, "session_id": session_id,
+                        "context_tokens": ctx["context_tokens"],
+                        "dropped_rounds": ctx["dropped_rounds"]})
             return
         for call in tool_calls:
             name = call["function"]["name"]
@@ -255,7 +305,9 @@ async def stream_agent(body: ChatIn, session_id: str):
             messages.append({"role": "tool", "tool_call_id": call["id"], "content": result})
     reply = "已达到最大工具轮数，任务暂停，请检查进度。"
     save_message(session_id, "assistant", reply)
-    yield _sse({"type": "done", "reply": reply, "session_id": session_id})
+    yield _sse({"type": "done", "reply": reply, "session_id": session_id,
+                "context_tokens": ctx["context_tokens"],
+                "dropped_rounds": ctx["dropped_rounds"]})
 
 
 @app.post("/api/chat/stream")
