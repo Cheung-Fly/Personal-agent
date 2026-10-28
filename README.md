@@ -32,6 +32,7 @@ an LLM that **decides**, a runtime that **orchestrates**, and tools that **act**
 - **Persistent sessions (SQLite)** — refresh or restart and history is still there; server-generated session id, last 20 rounds loaded per request / 会话持久化：刷新、重启都不丢历史
 - **Long-term memory (MEMORY.md)** — hand-written preferences injected as a second system message on every request; edit the file and the next message follows it / 长期记忆：手动写偏好，每次对话自动注入，改完下一句就生效
 - **Approval tiers (v0.5)** — read-only tools auto-run, changes ask once on an approval card, dangerous calls are refused by default; every tool call is written to an audit log (`data/audit.log`) / 审批分级：只读自动、改动弹卡确认、高危默认拒绝，每次调用记审计日志
+- **Context budget (v0.6)** — token estimation plus a budget (`CONTEXT_TOKEN_BUDGET`, default 8000): oldest history rounds are dropped when the context would overflow, system prompt / memory / latest round never dropped; `done` reports `context_tokens` and `dropped_rounds`, real `usage.prompt_tokens` is logged / 上下文预算：字符换算估算 token，超预算从最旧轮次整轮截断，`done` 事件带估算 token 数与丢弃轮数
 - **Access token auth** + Docker deployment, optional web VS Code (code-server) side-by-side / 口令鉴权、Docker 一键部署、可选网页版 VS Code
 
 ## Architecture / 架构
@@ -83,6 +84,7 @@ Check it's alive: `curl http://localhost:8000/health`
 | `HISTORY_ROUNDS` | Most recent rounds loaded per request (default `20`) |
 | `MEMORY_MAX_CHARS` | Long-term memory characters injected per request (default `2000`) |
 | `APPROVAL_TIMEOUT_SECONDS` | How long an approval card waits before counting as denied (default `300`) |
+| `CONTEXT_TOKEN_BUDGET` | Context budget in estimated tokens (default `8000`, history + memory only; oldest rounds are dropped when over budget) / 上下文预算，超了从最旧轮次截断 |
 | `MAX_TOOL_ROUNDS` | Agent loop limit (default `12`) |
 
 ## Security / 安全
@@ -98,6 +100,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.3 Persistent sessions (SQLite)
 - [x] v0.4 Long-term memory file (MEMORY.md injected as second system message)
 - [x] v0.5 Approval tiers for tool calls (read-only auto, changes on a card, dangerous refused) + audit log
+- [x] v0.6 Context budget (token estimation + oldest-round truncation, `CONTEXT_TOKEN_BUDGET` default 8000) + real `usage` logging
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
@@ -105,7 +108,7 @@ Check it's alive: `curl http://localhost:8000/health`
 
 ```
 personal-agent/
-├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py)
+├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py)
 ├─ static/           # web chat frontend
 ├─ agent_workspace/  # the only place the agent can touch (persisted volume)
 ├─ tests/            # tool-layer tests, no LLM required
