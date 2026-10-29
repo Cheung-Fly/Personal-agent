@@ -51,6 +51,18 @@ TOOL_SCHEMAS = [
     {
         "type": "function",
         "function": {
+            "name": "search_docs",
+            "description": "在项目文档（工作区 docs/ 目录的 .md）里按语义检索相关段落。回答“项目里是怎么做的 / 文档里怎么写的”这类问题时先用它检索，不要凭记忆猜；返回带出处的段落。检索不到会明确说未找到。",
+            "parameters": {
+                "type": "object",
+                "properties": {"query": {"type": "string", "description": "要检索的问题或关键词"}},
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "exec_command",
             "description": "在工作区目录里执行一条 shell 命令，如 ls、python、pytest、git status。有 60 秒超时。",
             "parameters": {
@@ -88,6 +100,11 @@ def run_tool(name: str, args: dict, approved: bool = False) -> str:
             return "\n".join(items[:500]) or "(空)"
         if name == "read_file":
             return _safe_path(args["path"]).read_text(encoding="utf-8")[:20000]
+        if name == "search_docs":
+            # v0.7 小 RAG：延迟导入避免与 rag.py（它要 WORKSPACE）循环导入；
+            # search_docs 内部已把一切失败转成文本，这里不会抛出来。
+            from .rag import search_docs
+            return search_docs(args.get("query", ""))
         if name == "write_file":
             p = _safe_path(args["path"])
             # v0.5 审批卡开一半：长期记忆 MEMORY.md 可以由 Agent 提议写，
