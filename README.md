@@ -26,12 +26,13 @@ an LLM that **decides**, a runtime that **orchestrates**, and tools that **act**
 
 - **Web chat UI** — no build step, plain HTML/JS served by the backend / 零构建的网页聊天界面
 - **Agent loop** — model → tool calls → results fed back → repeat, with a max-round guard / 模型与工具的多轮循环，带轮数上限防死循环
-- **Server-side tools** — `list_files` / `read_file` / `write_file` / `exec_command` / 在服务器上读写文件、执行命令
+- **Server-side tools** — `list_files` / `read_file` / `write_file` / `exec_command` / `search_docs` / 在服务器上读写文件、执行命令、检索文档
 - **Sandboxed workspace** — path-traversal protection, command timeout, output truncation / 路径沙箱校验、命令超时、输出截断
 - **Model-agnostic** — any OpenAI-compatible API with tool calling (Muse / OpenAI / DeepSeek / Qwen…) / 任意支持 tool calling 的兼容接口，改配置即换模型
 - **Persistent sessions (SQLite)** — refresh or restart and history is still there; server-generated session id, last 20 rounds loaded per request / 会话持久化：刷新、重启都不丢历史
 - **Long-term memory (MEMORY.md)** — hand-written preferences injected as a second system message on every request; edit the file and the next message follows it / 长期记忆：手动写偏好，每次对话自动注入，改完下一句就生效
 - **Approval tiers (v0.5)** — read-only tools auto-run, changes ask once on an approval card, dangerous calls are refused by default; every tool call is written to an audit log (`data/audit.log`) / 审批分级：只读自动、改动弹卡确认、高危默认拒绝，每次调用记审计日志
+- **Doc search / small RAG (v0.7)** — a `search_docs` tool retrieves the most relevant passages from the project docs (`agent_workspace/docs/*.md`) by embedding similarity (Zhipu `embedding-3`, 1024-dim, vectors cached on disk and re-embedded per changed chunk), returns at most 3 sourced passages (~2000 chars), and honestly reports "not found" below a similarity threshold instead of guessing / 小 RAG：按语义检索项目文档，只喂最相关的几段，未命中老实说找不到
 - **Context budget (v0.6)** — token estimation plus a budget (`CONTEXT_TOKEN_BUDGET`, default 8000): oldest history rounds are dropped when the context would overflow, system prompt / memory / latest round never dropped; `done` reports `context_tokens` and `dropped_rounds`, real `usage.prompt_tokens` is logged / 上下文预算：字符换算估算 token，超预算从最旧轮次整轮截断，`done` 事件带估算 token 数与丢弃轮数
 - **Access token auth** + Docker deployment, optional web VS Code (code-server) side-by-side / 口令鉴权、Docker 一键部署、可选网页版 VS Code
 
@@ -85,6 +86,9 @@ Check it's alive: `curl http://localhost:8000/health`
 | `MEMORY_MAX_CHARS` | Long-term memory characters injected per request (default `2000`) |
 | `APPROVAL_TIMEOUT_SECONDS` | How long an approval card waits before counting as denied (default `300`) |
 | `CONTEXT_TOKEN_BUDGET` | Context budget in estimated tokens (default `8000`, history + memory only; oldest rounds are dropped when over budget) / 上下文预算，超了从最旧轮次截断 |
+| `EMBEDDING_MODEL` / `EMBEDDING_DIMENSIONS` | Embedding model for doc search (default `embedding-3` / `1024`; shares `LLM_API_KEY` and `LLM_BASE_URL`) |
+| `RAG_DOCS_DIR` | Doc corpus for `search_docs` (default `WORKSPACE_DIR/docs`) |
+| `RAG_TOP_K` / `RAG_MIN_SCORE` | Passages returned per search (default `3`) / minimum cosine similarity (default `0.3`; below it the tool honestly returns "not found") |
 | `MAX_TOOL_ROUNDS` | Agent loop limit (default `12`) |
 
 ## Security / 安全
@@ -101,6 +105,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.4 Long-term memory file (MEMORY.md injected as second system message)
 - [x] v0.5 Approval tiers for tool calls (read-only auto, changes on a card, dangerous refused) + audit log
 - [x] v0.6 Context budget (token estimation + oldest-round truncation, `CONTEXT_TOKEN_BUDGET` default 8000) + real `usage` logging
+- [x] v0.7 Small RAG: `search_docs` tool with embedding-based retrieval over workspace docs (cached vectors, honest not-found)
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
@@ -108,7 +113,7 @@ Check it's alive: `curl http://localhost:8000/health`
 
 ```
 personal-agent/
-├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py)
+├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py) + doc search (rag.py)
 ├─ static/           # web chat frontend
 ├─ agent_workspace/  # the only place the agent can touch (persisted volume)
 ├─ tests/            # tool-layer tests, no LLM required
