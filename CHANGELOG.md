@@ -1,5 +1,72 @@
 # Changelog
 
+## v0.7.0 — 2026-10-29
+
+Small RAG: the agent can now search the project documentation by
+meaning and answer from retrieved passages instead of guessing from
+the model's memory or reading whole files into the context.
+
+- New `backend/rag.py` + a `search_docs` tool (stdlib + the existing
+  httpx, no new dependencies). Corpus: `.md` files under
+  `agent_workspace/docs/` (`RAG_DOCS_DIR` to change), read-only;
+  `MEMORY.md` is excluded (v0.4 already injects it every turn, so
+  indexing it would feed the same text twice). Chunking: split on
+  Markdown headings first, then split over-long sections at 800
+  characters with 100 characters of overlap so a sentence cut in half
+  still matches from either side. The repo's own
+  `docs/ARCHITECTURE.md` is copied into `agent_workspace/docs/` as
+  the demo corpus (with a `.gitignore` exception, same pattern as
+  MEMORY.md in v0.4).
+- Retrieval uses the Zhipu embedding API — a deliberate change from
+  the design draft, which recommended local TF-IDF; the user chose
+  semantic search (decided 2026-10-29). `POST {LLM_BASE_URL}/embeddings`
+  with `EMBEDDING_MODEL` (default `embedding-3`) and
+  `EMBEDDING_DIMENSIONS` (default 1024), sharing the chat API's base
+  URL and key, batched at most 64 inputs per call. Ranking is pure
+  Python cosine similarity; `search_docs` is classified low-risk
+  (auto-execute, same tier as `list_files` / `read_file`), returns
+  at most `RAG_TOP_K` (default 3) passages with their source file
+  and heading, capped at about 2000 characters total so a search
+  cannot blow the v0.6 context budget.
+- Honest miss: if the best score is below `RAG_MIN_SCORE` (default
+  cosine 0.3), the tool returns an explicit "no relevant document
+  found" text (with the best score) instead of padding the context
+  with irrelevant passages — half of hallucination prevention lives
+  on the retrieval side.
+- Index cache: vectors are stored in `data/rag_index.json` keyed by
+  content hash, with each chunk's source file, mtime and the model /
+  dimensions recorded. Editing a document re-embeds only the chunks
+  that changed; changing the embedding model or dimensions rebuilds
+  the whole index (vectors from different models don't live in the
+  same space). A response `usage` is logged when present.
+- Failure behaviour: no API key, an embeddings endpoint error, or an
+  empty corpus all return a clear failure text to the model (the
+  v0.1 feed-the-error-back pattern) — the tool never raises into the
+  agent loop, and the reply suggests falling back to `read_file` or
+  answering honestly.
+- Honest limits, documented: every query costs one embeddings API
+  call (plus re-embedding changed chunks), so search has latency and
+  a small per-call cost that keyword search would not; the local
+  verification used a mock embeddings service (the vault key cannot
+  be exported), so real-API embedding quality is verified after
+  deployment, not locally.
+- Verified: pytest 59 passed (45 existing + 14 new RAG tests:
+  heading chunking, long-section split with overlap, MEMORY.md /
+  non-Markdown exclusion, cache reuse and per-chunk invalidation,
+  full rebuild on model change, hit with source attribution, honest
+  miss, empty/missing corpus, result cap, failure texts instead of
+  exceptions, cosine edge cases, low-risk classification);
+  mock end-to-end 9/9 passed (mock LLM issuing a `search_docs` call
+  with streamed, split arguments + mock embeddings endpoint against
+  the real FastAPI app: no approval card for the low-risk tool,
+  retrieved passage with source fed back to the model, final reply
+  contains the documented content, audit log records low/auto,
+  index file persisted, and an unrelated question returns the
+  honest not-found text). An earlier e2e run also exercised the
+  failure path for real: a mock returning the wrong vector
+  dimension was rejected with a clear failure text and the loop
+  completed normally.
+
 ## v0.6.0 — 2026-10-28
 
 Context management: token estimation and a budget that truncates the
