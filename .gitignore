@@ -6,3 +6,5 @@ agent_workspace/*
 !agent_workspace/.gitkeep
 !agent_workspace/README.md
 !agent_workspace/MEMORY.md
+!agent_workspace/docs/
+!agent_workspace/docs/**
