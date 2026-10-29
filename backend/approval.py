@@ -110,13 +110,13 @@ def _classify_exec(command: str) -> tuple[str, str]:
 def classify(tool_name: str, args: dict, workspace: Path) -> tuple[str, str]:
     """判一次工具调用的风险级。返回 (level, reason)。
 
-    - list_files / read_file：只读，低风险自动执行。
+    - list_files / read_file / search_docs（v0.7 文档检索）：只读，低风险自动执行。
     - write_file：写新文件低风险；覆盖已有文件、写 MEMORY.md 中风险；
       写系统敏感路径（.env / .pem / .key / .ssh 下）高风险。
     - exec_command：见 _classify_exec。
     - 未知工具：高风险（反正也执行不了）。
     """
-    if tool_name in ("list_files", "read_file"):
+    if tool_name in ("list_files", "read_file", "search_docs"):
         return LOW, "只读，不改东西"
     if tool_name == "write_file":
         rel = args.get("path", "")
