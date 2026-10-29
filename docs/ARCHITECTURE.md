@@ -30,6 +30,7 @@
 │  backend/tools.py        │   │  Muse / OpenAI / DeepSeek │
 │  list_files / read_file  │   │  / Qwen / Moonshot …      │
 │  write_file / exec_cmd   │   │  只做推理与决策，不执行    │
+│  search_docs (v0.7 RAG)  │   │                          │
 │  - 路径沙箱校验           │   └───────────────────────────┘
 │  - 命令超时 60s / 输出截断 │
 └───────┬──────────────────┘
@@ -63,6 +64,7 @@
 | 长期记忆 | agent_workspace/MEMORY.md | v0.4 已接入，每次请求作为第二条 system 消息注入（上限 2000 字符，手动编辑）；v0.5 起 Agent 可提议改写，但须经审批卡确认才落盘 |
 | 审计日志 | data/audit.log（JSON Lines，不进 git） | v0.5：每次工具调用记一行（时间、会话、工具、参数摘要、风险级、通过/拒绝/自动、结果摘要） |
 | 上下文预算 | 环境变量 + 每次请求的 done 事件 | v0.6：CONTEXT_TOKEN_BUDGET 默认 8000（只算 history + 记忆），组装时超预算从最旧轮次整轮截断；真实 `usage.prompt_tokens` 记一行日志（`[context] 真实 prompt_tokens=...`），供第三段成本统计用 |
+| 文档向量索引 | data/rag_index.json（不进 git） | v0.7：`agent_workspace/docs/` 语料切块后的 embedding 向量缓存，按内容哈希复用（改文档只重嵌变化的块），模型/维度变了整表重建；检索走 embedding 接口（embedding-3 / 1024 维），余弦排序，低于阈值 0.3 返回未找到 |
 
 ## 5. 安全设计
 
@@ -88,7 +90,7 @@
 ## 7. 扩展路线
 
 - v1.1 流式输出 SSE + 工具日志实时推送
-- v1.2 会话持久化 SQLite（v0.3 ✓）+ MEMORY.md 长期记忆注入（v0.4 ✓）+ 上下文预算截断与 token 估算（v0.6 ✓，只发生在组装时，库里 20 轮不动）
+- v1.2 会话持久化 SQLite（v0.3 ✓）+ MEMORY.md 长期记忆注入（v0.4 ✓）+ 上下文预算截断与 token 估算（v0.6 ✓，只发生在组装时，库里 20 轮不动）+ 小 RAG 文档检索（v0.7 ✓，embedding 语义检索 + 向量落盘缓存，`search_docs` 工具低风险自动执行）
 - v1.3 审批卡：exec / 删除类工具执行前前端确认（v0.5 ✓，删除工具本身还没加，留到以后直接进高风险级）
 - v2.0 工具层改 MCP Server，工具可被任意 MCP 客户端复用；增加 git、Playwright 浏览器、cron 定时工具
 - v2.1 Tauri 打包桌面客户端（内嵌网页，连接远程后端）
