@@ -185,6 +185,35 @@ def test_search_without_key_returns_failure_text(tmp_path, monkeypatch):
     assert out.startswith("工具执行失败") and "LLM_API_KEY" in out
 
 
+# ---------- 阈值默认值（v0.8 回填） ----------
+
+def test_default_min_score_is_04():
+    # 2026-10-29 真机校准：无关约 0.34–0.35、相关 0.52/0.60，原默认
+    # 0.3 会把无关段落当命中；v0.8 把仓库默认对齐服务器的 0.4。
+    assert rag.RAG_MIN_SCORE == 0.4
+
+
+def test_chunk_scoring_035_misses_at_default_threshold(tmp_path):
+    # 构造余弦恰为 0.35 的场景：query 单位向量 [1, 0]，块向量
+    # [0.35, sqrt(1-0.35^2)]（模长 1，余弦 = 0.35）。
+    import math
+    docs = _write_docs(tmp_path)
+    query = "审批分几级"
+
+    def embed_035(texts):
+        return [[1.0, 0.0] if t == query
+                else [0.35, math.sqrt(1 - 0.35 ** 2)] for t in texts]
+
+    out = rag.search_docs(query, embed_fn=embed_035, docs=docs,
+                          index_file=tmp_path / "idx.json", workspace=tmp_path)
+    assert out.startswith("未找到相关文档") and "0.35" in out
+    # 显式传回旧阈值 0.3 时同一分数仍命中——回填只改默认，不改行为口径。
+    out2 = rag.search_docs(query, embed_fn=embed_035, docs=docs,
+                           index_file=tmp_path / "idx.json", workspace=tmp_path,
+                           min_score=0.3)
+    assert "找到" in out2 and "相关度" in out2
+
+
 # ---------- 余弦与分级 ----------
 
 def test_cosine():
