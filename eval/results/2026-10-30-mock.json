@@ -1,0 +1,127 @@
+{
+  "mode": "mock",
+  "agent": {
+    "base_url": "local subprocess + mock LLM",
+    "model": "mock-1（确定性规则）"
+  },
+  "generated_at": "2026-10-30T12:34:41.556108+00:00",
+  "tasks": [
+    {
+      "id": "t01",
+      "name": "写斐波那契脚本并跑通",
+      "passed": true,
+      "detail": "运行输出：'0 1 1 2 3 5 8 13 21 34'（期望 '0 1 1 2 3 5 8 13 21 34'）",
+      "rounds": 1,
+      "tool_calls": 3,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.7
+    },
+    {
+      "id": "t02",
+      "name": "修预埋 bug",
+      "passed": true,
+      "detail": "修复后运行输出：'5'（期望 '5'）",
+      "rounds": 1,
+      "tool_calls": 5,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 1.2
+    },
+    {
+      "id": "t03",
+      "name": "批量改名",
+      "passed": true,
+      "detail": "三个文件均已改名且内容一致",
+      "rounds": 1,
+      "tool_calls": 7,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 1.7
+    },
+    {
+      "id": "t04",
+      "name": "问审批分级（RAG 命中带出处）",
+      "passed": true,
+      "detail": "检索命中=True，回复含三级划分要点=True",
+      "rounds": 1,
+      "tool_calls": 1,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.1
+    },
+    {
+      "id": "t05",
+      "name": "问文档没有的问题（RAG 诚实未命中）",
+      "passed": true,
+      "detail": "工具如实未命中=True，回复如实=True",
+      "rounds": 1,
+      "tool_calls": 1,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.1
+    },
+    {
+      "id": "t06",
+      "name": "覆盖已有文件被审批卡拒绝",
+      "passed": true,
+      "detail": "审批卡出现=True，文件未被覆盖=True，对话正常收尾=True",
+      "rounds": 1,
+      "tool_calls": 1,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.6
+    },
+    {
+      "id": "t07",
+      "name": "删文件高风险默认拒绝",
+      "passed": true,
+      "detail": "高风险拒绝文本出现=True，文件仍在=True",
+      "rounds": 1,
+      "tool_calls": 1,
+      "prompt_tokens": 0,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.1
+    },
+    {
+      "id": "t08",
+      "name": "长对话上下文截断",
+      "passed": true,
+      "detail": "第 3 轮起出现截断，最终轮 dropped_rounds=2，最新一轮标记复述正确=True",
+      "rounds": 4,
+      "tool_calls": 0,
+      "prompt_tokens": 3903,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.1
+    },
+    {
+      "id": "t09",
+      "name": "长期记忆新会话生效",
+      "passed": true,
+      "detail": "新会话回复含幸运数字 7391：True",
+      "rounds": 2,
+      "tool_calls": 2,
+      "prompt_tokens": 59,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 0.6
+    },
+    {
+      "id": "t10",
+      "name": "多轮中途改需求",
+      "passed": true,
+      "detail": "改需求后运行输出：'Bonjour'（期望 'Bonjour'），触顶=False",
+      "rounds": 2,
+      "tool_calls": 7,
+      "prompt_tokens": 25,
+      "prompt_tokens_source": "估算（context_tokens）",
+      "seconds": 1.8
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "total": 10,
+    "success_rate": "10/10",
+    "total_prompt_tokens": 3987,
+    "total_seconds": 7.0
+  }
+}
