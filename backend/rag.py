@@ -12,8 +12,9 @@
   避免一句话被拦腰切断后两块都匹配不上。
 - 向量缓存：JSON 落盘 data/rag_index.json，按内容哈希复用——文件
   改了只重嵌变化的块；模型/维度配置变了整表重建。
-- 诚实未命中：最高分低于阈值（默认余弦 0.3）就明确返回“未找到
-  相关文档”，不硬凑不相关段落喂模型——防幻觉的一半在检索侧。
+- 诚实未命中：最高分低于阈值（默认余弦 0.4，v0.8 按真机校准从
+  0.3 回填，见 RAG_MIN_SCORE 处注释）就明确返回“未找到相关文档”，
+  不硬凑不相关段落喂模型——防幻觉的一半在检索侧。
 - 失败不打断循环：无 Key、接口报错、语料为空都返回清楚的错误
   文本（复用 v0.1 的失败文本回喂口径），模型可改用 read_file 或
   如实回答；本模块对外不抛异常。
@@ -39,7 +40,12 @@ EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "embedding-3")
 EMBEDDING_DIMENSIONS = int(os.environ.get("EMBEDDING_DIMENSIONS", "1024"))
 RAG_DOCS_DIR = os.environ.get("RAG_DOCS_DIR", "")  # 空 = WORKSPACE/docs
 RAG_TOP_K = int(os.environ.get("RAG_TOP_K", "3"))
-RAG_MIN_SCORE = float(os.environ.get("RAG_MIN_SCORE", "0.3"))
+# 阈值默认 0.4（v0.8 回填）：2026-10-29 真机校准——无关问题对真实
+# 向量的余弦分约 0.34–0.35、相关问题 0.52/0.60，原默认 0.3 会把无关
+# 段落当命中喂给模型，服务器当时已靠 .env 调到 0.4，这里把仓库默认
+# 值对齐。注意这只是 3 个样本点夹出的经验值、不是统计结论；评测集
+# 任务 4/5（eval/）就是它的回归用例，攒够数据再校准。
+RAG_MIN_SCORE = float(os.environ.get("RAG_MIN_SCORE", "0.4"))
 
 CHUNK_CHARS = 800  # 单块字符上限（同草稿）
 CHUNK_OVERLAP = 100  # 超长切分时相邻块的重叠字符数
