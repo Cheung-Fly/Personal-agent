@@ -34,6 +34,7 @@ an LLM that **decides**, a runtime that **orchestrates**, and tools that **act**
 - **Approval tiers (v0.5)** — read-only tools auto-run, changes ask once on an approval card, dangerous calls are refused by default; every tool call is written to an audit log (`data/audit.log`) / 审批分级：只读自动、改动弹卡确认、高危默认拒绝，每次调用记审计日志
 - **Doc search / small RAG (v0.7)** — a `search_docs` tool retrieves the most relevant passages from the project docs (`agent_workspace/docs/*.md`) by embedding similarity (Zhipu `embedding-3`, 1024-dim, vectors cached on disk and re-embedded per changed chunk), returns at most 3 sourced passages (~2000 chars), and honestly reports "not found" below a similarity threshold instead of guessing / 小 RAG：按语义检索项目文档，只喂最相关的几段，未命中老实说找不到
 - **Context budget (v0.6)** — token estimation plus a budget (`CONTEXT_TOKEN_BUDGET`, default 8000): oldest history rounds are dropped when the context would overflow, system prompt / memory / latest round never dropped; `done` reports `context_tokens` and `dropped_rounds`, real `usage.prompt_tokens` is logged / 上下文预算：字符换算估算 token，超预算从最旧轮次整轮截断，`done` 事件带估算 token 数与丢弃轮数
+- **Fixed-task eval set (v0.8)** — 10 fixed tasks (scripting, bug fix, batch rename, doc-search hit / honest miss, approval deny paths, context truncation, long-term memory, mid-task requirement change) graded by deterministic checkers, never by an LLM judge; mock mode runs in CI to verify the harness, live mode against the deployed agent produces the baseline table in `eval/results/` / 固定任务评测集：确定性检查判定、不用 LLM 当裁判，mock 验链路进 CI，live 对真机出基线表
 - **Access token auth** + Docker deployment, optional web VS Code (code-server) side-by-side / 口令鉴权、Docker 一键部署、可选网页版 VS Code
 
 ## Architecture / 架构
@@ -106,6 +107,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.5 Approval tiers for tool calls (read-only auto, changes on a card, dangerous refused) + audit log
 - [x] v0.6 Context budget (token estimation + oldest-round truncation, `CONTEXT_TOKEN_BUDGET` default 8000) + real `usage` logging
 - [x] v0.7 Small RAG: `search_docs` tool with embedding-based retrieval over workspace docs (cached vectors, honest not-found)
+- [x] v0.8 Fixed-task eval set: 10 tasks with deterministic checkers, mock mode in CI + first live baseline; `RAG_MIN_SCORE` default recalibrated to 0.4
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
@@ -114,6 +116,7 @@ Check it's alive: `curl http://localhost:8000/health`
 ```
 personal-agent/
 ├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py) + doc search (rag.py)
+├─ eval/             # fixed-task eval set (v0.8): task definitions + deterministic checkers + mock/live runners + baseline results
 ├─ static/           # web chat frontend
 ├─ agent_workspace/  # the only place the agent can touch (persisted volume)
 ├─ tests/            # tool-layer tests, no LLM required
@@ -127,6 +130,7 @@ personal-agent/
 ```bash
 pip install pytest
 python -m pytest tests/ -q   # covers write/read/exec + sandbox path-traversal blocking
+python eval/run_eval.py      # v0.8 eval set, mock mode (deterministic fake model, zero cost)
 ```
 
 ## License
