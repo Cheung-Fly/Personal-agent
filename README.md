@@ -108,6 +108,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.6 Context budget (token estimation + oldest-round truncation, `CONTEXT_TOKEN_BUDGET` default 8000) + real `usage` logging
 - [x] v0.7 Small RAG: `search_docs` tool with embedding-based retrieval over workspace docs (cached vectors, honest not-found)
 - [x] v0.8 Fixed-task eval set: 10 tasks with deterministic checkers, mock mode in CI + first live baseline; `RAG_MIN_SCORE` default recalibrated to 0.4
+- [x] v0.9 t09 fix: one `SYSTEM_PROMPT` sentence directing the model to call `write_file` instead of proposing edits in chat; verified by re-running the frozen eval table live
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
