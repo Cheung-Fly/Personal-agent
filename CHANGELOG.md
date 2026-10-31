@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.9.0 — 2026-10-31
+
+Fix the one failure from the v0.8 live baseline (t09, long-term
+memory) by changing exactly one sentence of the prompt — then prove
+or disprove the fix by re-running the same frozen task table against
+the updated deployment. The eval tasks and checkers are untouched:
+fix the thing being measured, never the ruler.
+
+- The failure (v0.8 baseline, kept on record): asked to save a
+  preference to MEMORY.md, the model twice replied with the proposed
+  text in chat and stopped — it never emitted the `write_file` tool
+  call, so the approval flow never fired and a new session honestly
+  answered "I don't know". The mechanism was fine; the model treated
+  "proposing" as the end of the task.
+- The change (one sentence in `SYSTEM_PROMPT`, right after the
+  tool-use sentence in `backend/main.py`): when information needs to
+  be written to a file, call `write_file` directly instead of only
+  presenting the content in chat; medium-risk writes surface an
+  approval card for the user to confirm, so there is no need to ask
+  for consent in chat first. Safety is not weakened: `write_file`
+  still goes through the v0.5 approval tiers (overwriting an
+  existing file is medium-risk and still needs a card approval) —
+  t06 in the re-run guards exactly that.
+- Regression test (`tests/test_prompt.py`, 2 cases): pins the
+  sentence's semantic components in `SYSTEM_PROMPT`, so a future
+  prompt cleanup cannot silently delete the fix and resurrect t09.
+  (The import of `backend.main` inside the test functions is
+  deliberate: `main.py` binds `tools.WORKSPACE` at import time, and
+  a module-level import would break approval tests that monkeypatch
+  the workspace.)
+- pytest: 68 passed (66 + 2 new). Mock eval chain 10/10 via
+  `tests/test_eval.py` — mechanism only, not a success rate.
+- **Live re-run (2026-10-31, deployed v0.9.0 / GLM-4.6): <RESULTS_PENDING>**
+  (`eval/results/2026-10-31-live.json`). Same frozen 10 tasks, same
+  checkers as the v0.8 baseline.
+
 ## v0.8.0 — 2026-10-30
 
 Fixed-task eval set: a yardstick for "did the agent actually get
