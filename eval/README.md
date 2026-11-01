@@ -45,10 +45,15 @@ python eval/run_eval.py --mode live \
 通过/失败、轮数（user 消息数）、工具调用次数、prompt_tokens、
 耗时，外加汇总（成功率、总 token、总耗时）。
 
-**prompt_tokens 的口径**：API 响应只暴露 `context_tokens`（服务端
-估算值，v0.6），真实 `usage` 只打在服务端日志里、接口拿不到，
-所以结果里一律标“估算（context_tokens）”。这是成本统计的起步
-口径，不是精确计费。
+**prompt_tokens 的口径**（v0.10 起）：优先用响应里的真实 `usage`
+（v0.10 起 `/api/chat` 响应与流式 `done` 事件带 `usage` 字段，是
+服务端逐次调用捕获的 API 原始值）；接口没给 usage 时（老部署）
+回退 `context_tokens`（服务端估算值，v0.6）。每行记
+`prompt_tokens_real` / `prompt_tokens_estimated` 两本账与
+`prompt_tokens_source`（真实 usage（API）/ 估算（context_tokens）/
+混合（含估算回退）），汇总里真实与估算分开报，永不混成一个数。
+v0.8/v0.9 的历史结果全是估算口径，与 v0.10 起的真实口径不可直接
+比大小——比成本要看同口径的数。
 
 ## 隔离
 
