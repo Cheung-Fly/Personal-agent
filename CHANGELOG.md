@@ -1,5 +1,56 @@
 # Changelog
 
+## v0.10.0 — 2026-11-01
+
+Cost statistics: capture the real `usage` the LLM API returns on every
+call, persist it, and aggregate it — replacing the estimated-only cost
+column of the v0.8/v0.9 baselines. No agent behavior changes: the
+prompt, approval tiers, context budget, RAG threshold, and the eval
+tasks/checkers are all untouched.
+
+- Why: both live baselines reported ≈45k "prompt tokens", but that
+  number was `context_tokens` — a character-based estimate of history +
+  memory only (system prompt and tool schemas excluded), printed once
+  per turn from the *last* call and never persisted. It was neither the
+  real API consumption nor comparable across versions.
+- Capture (both paths in `backend/main.py`):
+  - Non-streaming: the loop now calls `call_llm_with_usage` and records
+    every call (previously the per-round usage was discarded).
+  - Streaming: the request now sends `stream_options:
+    {"include_usage": true}`; the parser collects `usage` from the
+    trailing chunk (whose `choices` may be empty — parsing now guards
+    for that) and records once per round. Streaming usage had been
+    unverified since v0.6; this version verifies it against the real
+    API (see live results below).
+- Storage (`backend/usage.py`, stdlib only): one JSON line per LLM call
+  in `data/usage.log` (same style as the v0.5 audit log; not in git).
+  Each row is labelled `source: "api"` (numbers from the response) or
+  `source: "estimated"` (API returned no usage → prompt estimated from
+  the messages actually sent, completion/total recorded as null).
+  Estimated rows are never silently merged into real figures.
+- Aggregation & display: `GET /api/usage` returns totals plus by-day
+  (UTC) and by-session buckets, each split into api vs estimated call
+  counts. `/api/chat` responses and the streaming `done` event gain a
+  `usage` field with the per-request totals across all loop rounds
+  (`source`: api / estimated / mixed). `context_tokens` keeps its
+  original meaning (estimated context size) — the two numbers answer
+  different questions.
+- Eval cost source (`eval/run_eval.py`): rows now carry
+  `prompt_tokens_real` / `prompt_tokens_estimated` /
+  `completion_tokens` and a per-row `prompt_tokens_source` label; the
+  summary splits real vs estimated totals. Task definitions and
+  checkers are unchanged. The mock LLM now mirrors the real API's
+  streaming usage chunk when `include_usage` is requested.
+- Tests: pytest 76 passed (68 + 7 usage unit tests + 1 summarize
+  split test). Mock eval chain 10/10 — mechanism only; its cost rows
+  now come out fully "real usage" labelled, which also covers the
+  streaming-usage parsing end to end.
+- Known boundary: embedding calls (`search_docs`) still only print
+  their usage to the server log; chat completions are the cost body
+  and are fully covered. No currency conversion — token layer only.
+
+<!-- LIVE RESULTS: filled in after the InstaBox verification + re-run. -->
+
 ## v0.9.0 — 2026-10-31
 
 Fix the one failure from the v0.8 live baseline (t09, long-term
