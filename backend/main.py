@@ -28,6 +28,7 @@ from .storage import (
     save_message,
 )
 from .tools import TOOL_SCHEMAS, WORKSPACE, run_tool
+from .usage import merge_call_totals, record_usage, summarize_usage
 
 load_dotenv()
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
@@ -159,11 +160,15 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
     messages, ctx = _build_messages_with_budget(body, session_id)
     save_message(session_id, "user", body.message)
     tool_log = []
+    usage_rows = []  # v0.10：本请求内每次 LLM 调用的真实用量，逐次落盘
     for _ in range(MAX_ROUNDS):
         try:
-            msg = await call_llm(messages)
+            msg, usage = await call_llm_with_usage(messages)
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"调用模型 API 失败，请检查 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL: {e}") from e
+        usage_rows.append(record_usage(session_id=session_id, model=LLM_MODEL,
+                                       stream=False, usage=usage,
+                                       messages=messages))
         messages.append(msg)
         tool_calls = msg.get("tool_calls") or []
         if not tool_calls:  # 没有工具调用 = 最终回复
@@ -172,7 +177,8 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
             _log_llm_usage(ctx["context_tokens"])
             return {"reply": reply, "tool_log": tool_log, "session_id": session_id,
                     "context_tokens": ctx["context_tokens"],
-                    "dropped_rounds": ctx["dropped_rounds"]}
+                    "dropped_rounds": ctx["dropped_rounds"],
+                    "usage": merge_call_totals(usage_rows)}
         for call in tool_calls:
             name = call["function"]["name"]
             args = json.loads(call["function"]["arguments"] or "{}")
@@ -195,7 +201,8 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
     _log_llm_usage(ctx["context_tokens"])
     return {"reply": reply, "tool_log": tool_log, "session_id": session_id,
             "context_tokens": ctx["context_tokens"],
-            "dropped_rounds": ctx["dropped_rounds"]}
+            "dropped_rounds": ctx["dropped_rounds"],
+            "usage": merge_call_totals(usage_rows)}
 
 
 def _sse(payload: dict) -> str:
@@ -218,16 +225,21 @@ async def stream_agent(body: ChatIn, session_id: str):
     messages, ctx = _build_messages_with_budget(body, session_id)
     # 顺序注意：先组装上下文再落库，否则本轮 user 会在上下文里出现两次。
     save_message(session_id, "user", body.message)
+    usage_rows = []  # v0.10：本请求内每次 LLM 调用的真实用量，逐次落盘
     for _ in range(MAX_ROUNDS):
         content_parts: list[str] = []
         calls: dict[int, dict] = {}
+        round_usage: dict | None = None
         try:
             async with httpx.AsyncClient(timeout=120) as client:
                 async with client.stream(
                     "POST",
                     f"{LLM_BASE_URL}/chat/completions",
                     headers={"Authorization": f"Bearer {LLM_API_KEY}"},
-                    json={"model": LLM_MODEL, "messages": messages, "tools": TOOL_SCHEMAS, "stream": True},
+                    json={"model": LLM_MODEL, "messages": messages, "tools": TOOL_SCHEMAS,
+                          "stream": True,
+                          # v0.10：流式 usage 只在带这个开关时于尾 chunk 返回。
+                          "stream_options": {"include_usage": True}},
                 ) as resp:
                     resp.raise_for_status()
                     async for line in resp.aiter_lines():
@@ -236,7 +248,16 @@ async def stream_agent(body: ChatIn, session_id: str):
                         data = line[5:].strip()
                         if data == "[DONE]":
                             break
-                        delta = json.loads(data)["choices"][0]["delta"]
+                        chunk = json.loads(data)
+                        # usage 可能挂在最后一个 delta chunk 上，也可能在
+                        # choices 为空的独立尾 chunk 上，两种都收；先判空
+                        # 再取 choices[0]，否则尾 chunk 会 IndexError。
+                        if chunk.get("usage"):
+                            round_usage = chunk["usage"]
+                        choices = chunk.get("choices") or []
+                        if not choices:
+                            continue
+                        delta = choices[0].get("delta") or {}
                         if delta.get("content"):
                             content_parts.append(delta["content"])
                             yield _sse({"type": "token", "text": delta["content"]})
@@ -253,6 +274,11 @@ async def stream_agent(body: ChatIn, session_id: str):
         except Exception as e:
             yield _sse({"type": "error", "detail": f"调用模型 API 失败，请检查 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL: {e}"})
             return
+        # 本轮流结束才记账：messages 此刻还是本轮实际发送的内容，
+        # 流式没等到 usage 时 record_usage 用它估算并标 estimated。
+        usage_rows.append(record_usage(session_id=session_id, model=LLM_MODEL,
+                                       stream=True, usage=round_usage,
+                                       messages=messages))
         tool_calls = [
             {"id": c["id"], "type": "function",
              "function": {"name": c["name"], "arguments": c["arguments"]}}
@@ -266,7 +292,8 @@ async def stream_agent(body: ChatIn, session_id: str):
             save_message(session_id, "assistant", reply)
             yield _sse({"type": "done", "reply": reply, "session_id": session_id,
                         "context_tokens": ctx["context_tokens"],
-                        "dropped_rounds": ctx["dropped_rounds"]})
+                        "dropped_rounds": ctx["dropped_rounds"],
+                        "usage": merge_call_totals(usage_rows)})
             return
         for call in tool_calls:
             name = call["function"]["name"]
@@ -308,7 +335,8 @@ async def stream_agent(body: ChatIn, session_id: str):
     save_message(session_id, "assistant", reply)
     yield _sse({"type": "done", "reply": reply, "session_id": session_id,
                 "context_tokens": ctx["context_tokens"],
-                "dropped_rounds": ctx["dropped_rounds"]})
+                "dropped_rounds": ctx["dropped_rounds"],
+                "usage": merge_call_totals(usage_rows)})
 
 
 @app.post("/api/chat/stream")
@@ -342,6 +370,17 @@ async def decide_approval(approval_id: str, body: ApprovalIn,
     if rec is None:
         raise HTTPException(status_code=404, detail="审批不存在或已过期（5 分钟未确认按拒绝处理）")
     return {"approval_id": approval_id, "decision": body.decision, "tool": rec["tool"]}
+
+
+@app.get("/api/usage")
+async def usage_summary(x_access_token: str = Header(default="")):
+    """v0.10 成本统计出口：data/usage.log 的聚合（总计 + 按日 + 按会话）。
+
+    只读 JSON 直出，不做前端页面；api / estimated 分开报，
+    见 backend/usage.py 的口径说明。"""
+    if ACCESS_TOKEN and x_access_token != ACCESS_TOKEN:
+        raise HTTPException(status_code=401, detail="ACCESS_TOKEN 不正确或缺失")
+    return {"usage": summarize_usage()}
 
 
 @app.get("/api/sessions")
