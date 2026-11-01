@@ -175,19 +175,24 @@ def test_nonstreaming_medium_denied(tmp_path, monkeypatch):
     calls = {"n": 0}
 
     async def fake_llm(messages):
+        # v0.10 起循环走 call_llm_with_usage：返回 (message, usage)。
         calls["n"] += 1
+        usage = {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}
         if calls["n"] == 1:
             return {"tool_calls": [{"id": "c1", "function": {
                 "name": "write_file",
-                "arguments": json.dumps({"path": "old.py", "content": "改掉"})}}]}
-        return {"content": "已按拒绝处理，换方案了"}
+                "arguments": json.dumps({"path": "old.py", "content": "改掉"})}}]}, usage
+        return {"content": "已按拒绝处理，换方案了"}, usage
 
-    monkeypatch.setattr("backend.main.call_llm", fake_llm)
+    monkeypatch.setattr("backend.main.call_llm_with_usage", fake_llm)
     monkeypatch.setattr("backend.main.LLM_API_KEY", "test-key")  # 绕过 /api/chat 的 Key 检查
     client = TestClient(app)
     r = client.post("/api/chat", json={"message": "改 old.py"})
     assert r.status_code == 200
     assert "已按拒绝处理" in r.json()["reply"]
+    # v0.10：响应带本请求两次调用的真实 usage 合计
+    assert r.json()["usage"] == {"prompt_tokens": 20, "completion_tokens": 10,
+                                 "total_tokens": 30, "source": "api"}
     assert (tmp_path / "old.py").read_text(encoding="utf-8") == "原内容"  # 没被改写
     assert "流式" in r.json()["tool_log"][0]["result"]  # 告诉模型流式下可审批
 
