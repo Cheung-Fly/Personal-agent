@@ -34,6 +34,13 @@ def test_mock_eval_chain_all_pass(tmp_path):
     fails = [(t["id"], t["detail"]) for t in results["tasks"] if not t["passed"]]
     assert s["passed"] == 10, f"mock 链路未全通：{fails}"
     assert (tmp_path / "results").glob("*-mock.json")
+    # v0.10：mock LLM 两条路径都给真实 usage（含流式尾 chunk），
+    # 成本应全记真实账、来源标注为真实——流式 usage 捕获在链路里验。
+    assert s["total_prompt_tokens_real"] > 0
+    assert s["total_prompt_tokens_estimated"] == 0
+    for t in results["tasks"]:
+        assert t["prompt_tokens_source"] == "真实 usage（API）", t["id"]
+        assert t["completion_tokens"] > 0, t["id"]
 
 
 def test_summarize_counts():
@@ -43,8 +50,30 @@ def test_summarize_counts():
         {"passed": True, "prompt_tokens": 50, "seconds": 1.0},
     ]
     s = run_eval.summarize(rows)
+    # v0.10：无分账字段的老行按估算归账（source 缺失不算真实）。
     assert s == {"passed": 2, "total": 3, "success_rate": "2/3",
-                 "total_prompt_tokens": 400, "total_seconds": 5.0}
+                 "total_prompt_tokens": 400,
+                 "total_prompt_tokens_real": 0,
+                 "total_prompt_tokens_estimated": 400,
+                 "total_completion_tokens": 0,
+                 "total_seconds": 5.0}
+
+
+def test_summarize_splits_real_and_estimated():
+    """v0.10 成本口径：真实 usage 与估算分开汇总，永不混账。"""
+    rows = [
+        {"passed": True, "prompt_tokens": 100, "prompt_tokens_real": 100,
+         "prompt_tokens_estimated": 0, "completion_tokens": 30,
+         "prompt_tokens_source": "真实 usage（API）", "seconds": 1.0},
+        {"passed": True, "prompt_tokens": 250, "prompt_tokens_real": 0,
+         "prompt_tokens_estimated": 250, "completion_tokens": 0,
+         "prompt_tokens_source": "估算（context_tokens）", "seconds": 2.0},
+    ]
+    s = run_eval.summarize(rows)
+    assert s["total_prompt_tokens"] == 350
+    assert s["total_prompt_tokens_real"] == 100
+    assert s["total_prompt_tokens_estimated"] == 250
+    assert s["total_completion_tokens"] == 30
 
 
 # ---------- mock 大脑的确定性规则 ----------
