@@ -317,9 +317,17 @@ class _Handler(BaseHTTPRequestHandler):
             }
             usage["total_tokens"] = usage["prompt_tokens"] + 16
             if body.get("stream"):
+                chunks = list(_sse_chunks(result))
+                # v0.10：请求带 stream_options.include_usage 时，学 OpenAI
+                # 口径在末尾补一个 choices 为空、带 usage 的尾 chunk——
+                # 真实接口就是这么给流式用量的，替身要跟上。
+                if (body.get("stream_options") or {}).get("include_usage"):
+                    chunks.append({"id": "chatcmpl-mock",
+                                   "object": "chat.completion.chunk",
+                                   "choices": [], "usage": usage})
                 lines = "".join(
                     f"data: {json.dumps(c, ensure_ascii=False)}\n\n"
-                    for c in _sse_chunks(result)
+                    for c in chunks
                 ) + "data: [DONE]\n\n"
                 return self._send(lines, "text/event-stream")
             payload = {
