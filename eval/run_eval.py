@@ -16,10 +16,12 @@
   模型，同一套任务再跑一遍才有对比。
 
 每任务记：通过/失败、轮数（发出的 user 消息数）、工具调用次数、
-prompt_tokens、耗时。prompt_tokens 的口径：API 响应只暴露
-context_tokens（服务端估算，v0.6），真实 usage 只打在服务端日志
-里、接口拿不到，所以一律标“估算”——这正是草稿说的“真实 usage
-缺失时标估算”，不假装是精确值。
+prompt_tokens、耗时。prompt_tokens 的口径（v0.10 起）：优先用响应里
+的真实 usage（/api/chat 响应与流式 done 事件的 usage 字段，服务端
+逐次调用捕获的 API 原始值）；接口没给 usage 时（老部署）回退
+context_tokens（服务端估算，v0.6）并把来源标成“估算”。每行记
+prompt_tokens_real / prompt_tokens_estimated 两本账与
+prompt_tokens_source，汇总时分开报——真实与估算永不混成一个数。
 
 隔离：每任务独立 session、独立工作子目录（eval_tN/），跑完清理；
 任务 9 写 MEMORY.md 前先备份原文件、跑完恢复（长期记忆是全局
@@ -186,13 +188,50 @@ class Ctx:
         self.mode = mode
         self.rounds = 0        # 发出的 user 消息数
         self.tool_calls = 0    # 观察到的工具调用次数（tool_log 条数 / tool+审批事件数）
-        self.tokens = 0        # context_tokens 累计（估算口径）
+        self.tokens = 0        # prompt_tokens 累计（真实优先，见 _absorb）
+        self.tokens_real = 0   # 其中来自 API 真实 usage 的部分
+        self.tokens_estimated = 0  # 其中回退估算的部分
+        self.completion_tokens = 0  # 真实 completion 合计（测到才有）
+        self._saw_usage_field = False   # 响应里出现过 usage 字段
+        self._saw_fallback = False      # 出现过估算/无 usage 的一轮
+
+    def _absorb(self, usage, context_tokens):
+        """把一轮响应的成本并入三本账（v0.10 口径）。
+
+        usage 是 v0.10 起响应/done 事件带的合计字段：source="api" 时
+        全部记真实账；source="estimated"/"mixed" 时其 prompt 数里含
+        估算成分，整轮记估算账（拆不开就不假装能拆）；响应完全没有
+        usage 字段（老部署）时回退 context_tokens 记估算账。
+        """
+        if usage is not None:
+            self._saw_usage_field = True
+            prompt = usage.get("prompt_tokens") or 0
+            self.tokens += prompt
+            if usage.get("source") == "api":
+                self.tokens_real += prompt
+            else:
+                self.tokens_estimated += prompt
+                self._saw_fallback = True
+            self.completion_tokens += usage.get("completion_tokens") or 0
+        else:
+            self._saw_fallback = True
+            est = context_tokens or 0
+            self.tokens += est
+            self.tokens_estimated += est
+
+    @property
+    def tokens_source(self):
+        if self._saw_usage_field and not self._saw_fallback:
+            return "真实 usage（API）"
+        if not self._saw_usage_field:
+            return "估算（context_tokens）"
+        return "混合（含估算回退）"
 
     def chat(self, message, session_id=None):
         r = self.client.chat(message, session_id)
         self.rounds += 1
         self.tool_calls += len(r.get("tool_log") or [])
-        self.tokens += r.get("context_tokens") or 0
+        self._absorb(r.get("usage"), r.get("context_tokens"))
         return r
 
     def stream(self, message, session_id=None, policy=None):
@@ -201,7 +240,8 @@ class Ctx:
         self.rounds += 1
         self.tool_calls += sum(1 for e in events
                                if e.get("type") in ("tool", "approval_required"))
-        self.tokens += _done_event(events).get("context_tokens") or 0
+        done = _done_event(events)
+        self._absorb(done.get("usage"), done.get("context_tokens"))
         return events
 
     def subdir(self, name):
@@ -426,11 +466,27 @@ TASKS = [
 
 def summarize(rows):
     passed = sum(1 for r in rows if r["passed"])
+    # 真实/估算分开汇总（v0.10）：老行没有分账字段时，按
+    # prompt_tokens_source 是否“真实”兜底归账，不让旧结果文件算错。
+    real = 0
+    estimated = 0
+    for r in rows:
+        if "prompt_tokens_real" in r or "prompt_tokens_estimated" in r:
+            real += r.get("prompt_tokens_real") or 0
+            estimated += r.get("prompt_tokens_estimated") or 0
+        elif str(r.get("prompt_tokens_source", "")).startswith("真实"):
+            real += r["prompt_tokens"]
+        else:
+            estimated += r["prompt_tokens"]
     return {
         "passed": passed,
         "total": len(rows),
         "success_rate": f"{passed}/{len(rows)}",
         "total_prompt_tokens": sum(r["prompt_tokens"] for r in rows),
+        "total_prompt_tokens_real": real,
+        "total_prompt_tokens_estimated": estimated,
+        "total_completion_tokens": sum(r.get("completion_tokens") or 0
+                                       for r in rows),
         "total_seconds": round(sum(r["seconds"] for r in rows), 1),
     }
 
@@ -449,7 +505,10 @@ def run_all(client, workspace, mode):
             "detail": detail, "rounds": ctx.rounds,
             "tool_calls": ctx.tool_calls,
             "prompt_tokens": ctx.tokens,
-            "prompt_tokens_source": "估算（context_tokens）",
+            "prompt_tokens_real": ctx.tokens_real,
+            "prompt_tokens_estimated": ctx.tokens_estimated,
+            "completion_tokens": ctx.completion_tokens,
+            "prompt_tokens_source": ctx.tokens_source,
             "seconds": round(time.time() - started, 1),
         })
         print(f"[{task_id}] {'PASS' if passed else 'FAIL'} {name} — {detail}")
@@ -482,9 +541,13 @@ def print_summary(results):
     for r in results["tasks"]:
         print(f"  {r['id']}  {'通过' if r['passed'] else '失败'}  "
               f"轮数={r['rounds']} 工具={r['tool_calls']} "
-              f"tokens≈{r['prompt_tokens']} 耗时={r['seconds']}s")
-    print(f"  成功率 {s['success_rate']}，总 prompt_tokens≈"
-          f"{s['total_prompt_tokens']}（估算），总耗时 {s['total_seconds']}s")
+              f"tokens={r['prompt_tokens']}（{r['prompt_tokens_source']}） "
+              f"耗时={r['seconds']}s")
+    print(f"  成功率 {s['success_rate']}，总 prompt_tokens="
+          f"{s['total_prompt_tokens']}（真实 {s['total_prompt_tokens_real']}"
+          f" + 估算 {s['total_prompt_tokens_estimated']}），"
+          f"总 completion_tokens={s['total_completion_tokens']}，"
+          f"总耗时 {s['total_seconds']}s")
     if results["mode"] == "mock":
         print("  注意：mock 成功率只代表评测链路通过，不是真实成功率。")
 
