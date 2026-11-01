@@ -109,6 +109,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.7 Small RAG: `search_docs` tool with embedding-based retrieval over workspace docs (cached vectors, honest not-found)
 - [x] v0.8 Fixed-task eval set: 10 tasks with deterministic checkers, mock mode in CI + first live baseline; `RAG_MIN_SCORE` default recalibrated to 0.4
 - [x] v0.9 t09 fix: one `SYSTEM_PROMPT` sentence directing the model to call `write_file` instead of proposing edits in chat; verified by re-running the frozen eval table live
+- [x] v0.10 Cost statistics: real per-call `usage` captured on both paths (streaming via `stream_options.include_usage`), appended to `data/usage.log`, aggregated at `GET /api/usage` (totals / by-day / by-session, API vs estimated never mixed); eval cost column now reports real usage first with the estimate as a labelled fallback
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
@@ -116,7 +117,7 @@ Check it's alive: `curl http://localhost:8000/health`
 
 ```
 personal-agent/
-├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py) + doc search (rag.py)
+├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py) + doc search (rag.py) + cost statistics (usage.py)
 ├─ eval/             # fixed-task eval set (v0.8): task definitions + deterministic checkers + mock/live runners + baseline results
 ├─ static/           # web chat frontend
 ├─ agent_workspace/  # the only place the agent can touch (persisted volume)
