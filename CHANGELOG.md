@@ -1,5 +1,61 @@
 # Changelog
 
+## v0.11.0 — 2026-11-02
+
+Complete the cost accounting: embedding calls are on the books.
+v0.10 captured the real `usage` of every chat LLM call, but embedding
+calls (`rag.py`: index builds in batches, one call per `search_docs`
+query) only printed their usage to the server log — `GET /api/usage`
+understated real spend, and the eval cost of the RAG tasks (t04/t05)
+was missing its embedding part. Measurement only: no agent behavior,
+prompt, retrieval logic, threshold, approval, or eval task/checker
+changes.
+
+- Capture point: `rag.embed_texts` is the single funnel for every real
+  embedding call, and it already received the response `usage` — it
+  now hands it to `usage.record_embedding_usage` per batch instead of
+  only printing it. Injected fake embed functions in tests never reach
+  it and never fabricate accounting rows.
+- Row shape: same `data/usage.log`, rows gain `kind` (`"chat"` /
+  `"embedding"`; pre-v0.11 rows have no `kind` and are read as chat)
+  and, for embeddings, `purpose` (`"index"` build/rebuild vs `"query"`
+  query vectorization — one-off build cost vs per-question cost).
+  The embeddings API returns only `prompt_tokens` / `total_tokens`
+  (no completion — it generates no text), so API rows record
+  `completion_tokens: 0` (measured fact: total == prompt), while the
+  estimated fallback (no usage in response) estimates the prompt from
+  the batch texts and records completion/total as null, same honesty
+  rule as chat rows.
+- Aggregation: `summarize_usage` adds `by_kind` (`chat` / `embedding`
+  buckets, same shape as the others). The grand total now sums both
+  kinds — `/api/usage` no longer understates; by-day / by-session stay
+  combined.
+- Per-request attribution: `session_id` is threaded explicitly
+  (`main` → `run_tool` → `search_docs` → `embed_texts`); embedding
+  rows are also buffered per session in `usage.py`, and chat responses
+  / streaming `done` events gain a separate `embedding_usage` field
+  (`{calls, prompt_tokens, total_tokens, source}`) covering exactly
+  that request. It is deliberately *not* merged into the chat `usage`
+  field, whose completion semantics embeddings would corrupt. Known
+  boundary: concurrent requests on the same session can interleave
+  the buffer (single-user, tool execution is synchronous — accepted
+  and recorded, not hidden).
+- Eval cost source (only the cost source, as in v0.10): the runner
+  absorbs `embedding_usage` into each task's prompt total (split into
+  the real/estimated ledgers by its `source`) and records
+  `embedding_prompt_tokens` per task plus a summary total — t04/t05
+  now carry their full real cost. The mock embeddings service now
+  returns `total_tokens` alongside `prompt_tokens`, mirroring the
+  real API's usage shape.
+- Tests: pytest 82 passed (76 + 6 new: embedding row shape/total
+  fallback/estimated fallback, `by_kind` split incl. legacy rows,
+  per-session buffer merge & drain, real-path recording in `rag`
+  via a fake HTTP client for both index and query). Mock eval chain
+  10/10 — mechanism only; t04/t05 rows carry
+  `embedding_prompt_tokens > 0` there too.
+- Live verification (deployed v0.11.0 / GLM-4.6): _to be filled in
+  after the live run._
+
 ## v0.10.0 — 2026-11-01
 
 Cost statistics: capture the real `usage` the LLM API returns on every
