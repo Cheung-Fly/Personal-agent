@@ -82,9 +82,12 @@ def _safe_path(rel: str) -> Path:
     return p
 
 
-def run_tool(name: str, args: dict, approved: bool = False) -> str:
+def run_tool(name: str, args: dict, approved: bool = False,
+             session_id: str | None = None) -> str:
     """执行一次工具调用。approved=True 表示这次调用已经过审批卡
     （只用于 MEMORY.md 写这种中风险调用被用户点通过的情况）。
+    session_id 只给 search_docs 用：v0.11 起 embedding 记账要知道
+    这次检索属于哪个会话/请求，其余工具不收、默认 None 兼容老调用。
 
     纵深防御：即使直接调 run_tool，高风险调用也会在这里被拦住——
     主流程（main.py）先分级再决定要不要走到这里，但工具层自己也
@@ -104,7 +107,7 @@ def run_tool(name: str, args: dict, approved: bool = False) -> str:
             # v0.7 小 RAG：延迟导入避免与 rag.py（它要 WORKSPACE）循环导入；
             # search_docs 内部已把一切失败转成文本，这里不会抛出来。
             from .rag import search_docs
-            return search_docs(args.get("query", ""))
+            return search_docs(args.get("query", ""), session_id=session_id)
         if name == "write_file":
             p = _safe_path(args["path"])
             # v0.5 审批卡开一半：长期记忆 MEMORY.md 可以由 Agent 提议写，
