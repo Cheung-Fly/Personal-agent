@@ -226,3 +226,81 @@ def test_cosine():
 def test_search_docs_is_low_risk(tmp_path):
     level, _ = classify("search_docs", {"query": "审批"}, tmp_path)
     assert level == LOW
+
+
+# ---------- v0.11：embedding usage 落盘（真实路径，fake HTTP 客户端） ----------
+
+class _FakeEmbedResponse:
+    """学真实智谱 embeddings 响应：data 带向量、usage 只有 prompt/total。"""
+
+    def __init__(self, texts):
+        self._texts = texts
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        n = sum(len(t) for t in self._texts)
+        return {
+            "data": [{"object": "embedding", "index": i,
+                      "embedding": [1.0] + [0.0] * 1023}
+                     for i, _ in enumerate(self._texts)],
+            "usage": {"prompt_tokens": n, "total_tokens": n},
+        }
+
+
+class _FakeEmbedClient:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def post(self, url, headers=None, json=None):
+        return _FakeEmbedResponse(json["input"])
+
+
+def _usage_rows(tmp_path):
+    import json as _json
+    p = tmp_path / "usage.log"
+    if not p.exists():
+        return []
+    return [_json.loads(line) for line in
+            p.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def test_embed_texts_records_usage(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(rag, "LLM_API_KEY", "test-key")
+    monkeypatch.setattr(rag.httpx, "Client", _FakeEmbedClient)
+
+    vecs = rag.embed_texts(["你好"], purpose="query", session_id="sess-1")
+    assert len(vecs) == 1
+    rows = _usage_rows(tmp_path)
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["kind"] == "embedding" and row["purpose"] == "query"
+    assert row["source"] == "api" and row["prompt_tokens"] == 2
+    assert row["total_tokens"] == 2 and row["completion_tokens"] == 0
+    assert row["session_id"] == "sess-1"
+
+
+def test_search_docs_real_path_records_index_and_query(tmp_path, monkeypatch):
+    """走真实 embed_texts 的 search_docs：建索引一行 purpose=index、
+    查询一行 purpose=query，都带 session 落进 usage.log。"""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(rag, "LLM_API_KEY", "test-key")
+    monkeypatch.setattr(rag.httpx, "Client", _FakeEmbedClient)
+    docs = _write_docs(tmp_path)
+
+    out = rag.search_docs("审批分几级", docs=docs,
+                          index_file=tmp_path / "idx.json",
+                          workspace=tmp_path, session_id="sess-9")
+    assert "来源" in out  # 全同向假向量余弦为 1，必然命中
+    rows = _usage_rows(tmp_path)
+    assert sorted(r["purpose"] for r in rows) == ["index", "query"]
+    assert all(r["kind"] == "embedding" for r in rows)
+    assert all(r["session_id"] == "sess-9" for r in rows)
