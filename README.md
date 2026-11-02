@@ -110,6 +110,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.8 Fixed-task eval set: 10 tasks with deterministic checkers, mock mode in CI + first live baseline; `RAG_MIN_SCORE` default recalibrated to 0.4
 - [x] v0.9 t09 fix: one `SYSTEM_PROMPT` sentence directing the model to call `write_file` instead of proposing edits in chat; verified by re-running the frozen eval table live
 - [x] v0.10 Cost statistics: real per-call `usage` captured on both paths (streaming via `stream_options.include_usage`), appended to `data/usage.log`, aggregated at `GET /api/usage` (totals / by-day / by-session, API vs estimated never mixed); eval cost column now reports real usage first with the estimate as a labelled fallback
+- [x] v0.11 Cost accounting completed: embedding calls are on the books too — every embeddings response's `usage` is recorded in the same `data/usage.log` (`kind=embedding`, `purpose=index|query`), `GET /api/usage` splits chat vs embedding (`by_kind`, total = sum of both), chat responses / stream `done` events carry a per-request `embedding_usage`, and the eval cost column includes embedding spend for `search_docs` tasks
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
