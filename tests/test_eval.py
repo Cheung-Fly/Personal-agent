@@ -41,6 +41,13 @@ def test_mock_eval_chain_all_pass(tmp_path):
     for t in results["tasks"]:
         assert t["prompt_tokens_source"] == "真实 usage（API）", t["id"]
         assert t["completion_tokens"] > 0, t["id"]
+    # v0.11：触发 search_docs 的任务（t04/t05）成本含 embedding，
+    # 单独拆得出；没触发检索的任务 embedding 为 0。
+    by_id = {t["id"]: t for t in results["tasks"]}
+    assert by_id["t04"]["embedding_prompt_tokens"] > 0
+    assert by_id["t05"]["embedding_prompt_tokens"] > 0
+    assert by_id["t01"]["embedding_prompt_tokens"] == 0
+    assert s["total_embedding_prompt_tokens"] > 0
 
 
 def test_summarize_counts():
@@ -56,6 +63,7 @@ def test_summarize_counts():
                  "total_prompt_tokens_real": 0,
                  "total_prompt_tokens_estimated": 400,
                  "total_completion_tokens": 0,
+                 "total_embedding_prompt_tokens": 0,
                  "total_seconds": 5.0}
 
 
