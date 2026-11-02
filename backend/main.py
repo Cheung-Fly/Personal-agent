@@ -28,7 +28,12 @@ from .storage import (
     save_message,
 )
 from .tools import TOOL_SCHEMAS, WORKSPACE, run_tool
-from .usage import merge_call_totals, record_usage, summarize_usage
+from .usage import (
+    merge_call_totals,
+    record_usage,
+    summarize_usage,
+    take_embedding_usage,
+)
 
 load_dotenv()
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
@@ -157,6 +162,9 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
     # 顺序注意：先按库里历史组装上下文，再把本轮 user 落库——
     # 反过来会把本轮 user 在上下文里存两份。
     session_id = ensure_session(body.session_id, title_hint=body.message)
+    # v0.11：先取走并丢弃该 session 残留的 embedding 暂存（上一个没
+    # 正常收尾的请求留下的），防跨请求串账；本请求的在返回时取。
+    take_embedding_usage(session_id)
     messages, ctx = _build_messages_with_budget(body, session_id)
     save_message(session_id, "user", body.message)
     tool_log = []
@@ -178,7 +186,8 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
             return {"reply": reply, "tool_log": tool_log, "session_id": session_id,
                     "context_tokens": ctx["context_tokens"],
                     "dropped_rounds": ctx["dropped_rounds"],
-                    "usage": merge_call_totals(usage_rows)}
+                    "usage": merge_call_totals(usage_rows),
+                    "embedding_usage": take_embedding_usage(session_id)}
         for call in tool_calls:
             name = call["function"]["name"]
             args = json.loads(call["function"]["arguments"] or "{}")
@@ -186,7 +195,7 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
             # 所以中 / 高风险调用直接按拒绝回喂（并说明流式下可审批）。
             level, reason = classify(name, args, WORKSPACE)
             if level == LOW:
-                result = run_tool(name, args)
+                result = run_tool(name, args, session_id=session_id)
                 log_audit(session_id=session_id, tool=name, args=args, level=level,
                           outcome="auto", result_summary=result)
             else:
@@ -202,7 +211,8 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
     return {"reply": reply, "tool_log": tool_log, "session_id": session_id,
             "context_tokens": ctx["context_tokens"],
             "dropped_rounds": ctx["dropped_rounds"],
-            "usage": merge_call_totals(usage_rows)}
+            "usage": merge_call_totals(usage_rows),
+            "embedding_usage": take_embedding_usage(session_id)}
 
 
 def _sse(payload: dict) -> str:
@@ -221,6 +231,8 @@ async def stream_agent(body: ChatIn, session_id: str):
     持久化：user 在组装完上下文后、进循环前落库；assistant 最终回复在
     done 时落库，中途失败不写 assistant，避免半截回复污染下一轮。
     """
+    # v0.11：同 /api/chat，先清掉该 session 残留的 embedding 暂存防串账。
+    take_embedding_usage(session_id)
     yield _sse({"type": "session", "session_id": session_id})
     messages, ctx = _build_messages_with_budget(body, session_id)
     # 顺序注意：先组装上下文再落库，否则本轮 user 会在上下文里出现两次。
@@ -293,7 +305,8 @@ async def stream_agent(body: ChatIn, session_id: str):
             yield _sse({"type": "done", "reply": reply, "session_id": session_id,
                         "context_tokens": ctx["context_tokens"],
                         "dropped_rounds": ctx["dropped_rounds"],
-                        "usage": merge_call_totals(usage_rows)})
+                        "usage": merge_call_totals(usage_rows),
+                        "embedding_usage": take_embedding_usage(session_id)})
             return
         for call in tool_calls:
             name = call["function"]["name"]
@@ -314,7 +327,8 @@ async def stream_agent(body: ChatIn, session_id: str):
                 decision = await wait_for_decision(approvals, approval_id)
                 if decision == "approve":
                     yield _sse({"type": "tool", "tool": name, "args": args})
-                    result = run_tool(name, args, approved=True)
+                    result = run_tool(name, args, approved=True,
+                                      session_id=session_id)
                     log_audit(session_id=session_id, tool=name, args=args, level=level,
                               outcome="approved", result_summary=result)
                 else:
@@ -326,7 +340,7 @@ async def stream_agent(body: ChatIn, session_id: str):
                               result_summary=result)
             else:
                 yield _sse({"type": "tool", "tool": name, "args": args})
-                result = run_tool(name, args)
+                result = run_tool(name, args, session_id=session_id)
                 log_audit(session_id=session_id, tool=name, args=args, level=level,
                           outcome="auto", result_summary=result)
             yield _sse({"type": "tool_result", "tool": name, "result": result[:500]})
@@ -336,7 +350,8 @@ async def stream_agent(body: ChatIn, session_id: str):
     yield _sse({"type": "done", "reply": reply, "session_id": session_id,
                 "context_tokens": ctx["context_tokens"],
                 "dropped_rounds": ctx["dropped_rounds"],
-                "usage": merge_call_totals(usage_rows)})
+                "usage": merge_call_totals(usage_rows),
+                "embedding_usage": take_embedding_usage(session_id)})
 
 
 @app.post("/api/chat/stream")
@@ -374,7 +389,9 @@ async def decide_approval(approval_id: str, body: ApprovalIn,
 
 @app.get("/api/usage")
 async def usage_summary(x_access_token: str = Header(default="")):
-    """v0.10 成本统计出口：data/usage.log 的聚合（总计 + 按日 + 按会话）。
+    """成本统计出口：data/usage.log 的聚合（总计 + 按日 + 按会话 +
+    按 kind 分账）。v0.11 起总计含 embedding，总账不再低估；只看聊天
+    或只看 embedding 读 by_kind。
 
     只读 JSON 直出，不做前端页面；api / estimated 分开报，
     见 backend/usage.py 的口径说明。"""
