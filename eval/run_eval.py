@@ -22,6 +22,9 @@ prompt_tokens、耗时。prompt_tokens 的口径（v0.10 起）：优先用响�
 context_tokens（服务端估算，v0.6）并把来源标成“估算”。每行记
 prompt_tokens_real / prompt_tokens_estimated 两本账与
 prompt_tokens_source，汇总时分开报——真实与估算永不混成一个数。
+v0.11 起响应/done 事件另带 embedding_usage（该请求期间 search_docs
+的 embedding 用量）：其 prompt 一并计入本行总 prompt（按来源归账），
+并单独记 embedding_prompt_tokens、汇总单列——成本账含 embedding。
 
 隔离：每任务独立 session、独立工作子目录（eval_tN/），跑完清理；
 任务 9 写 MEMORY.md 前先备份原文件、跑完恢复（长期记忆是全局
@@ -192,16 +195,22 @@ class Ctx:
         self.tokens_real = 0   # 其中来自 API 真实 usage 的部分
         self.tokens_estimated = 0  # 其中回退估算的部分
         self.completion_tokens = 0  # 真实 completion 合计（测到才有）
+        self.embedding_tokens = 0  # v0.11：其中 embedding 的 prompt 合计
         self._saw_usage_field = False   # 响应里出现过 usage 字段
         self._saw_fallback = False      # 出现过估算/无 usage 的一轮
 
-    def _absorb(self, usage, context_tokens):
-        """把一轮响应的成本并入三本账（v0.10 口径）。
+    def _absorb(self, usage, context_tokens, embedding_usage=None):
+        """把一轮响应的成本并入三本账（v0.10 口径；v0.11 加 embedding）。
 
         usage 是 v0.10 起响应/done 事件带的合计字段：source="api" 时
         全部记真实账；source="estimated"/"mixed" 时其 prompt 数里含
         估算成分，整轮记估算账（拆不开就不假装能拆）；响应完全没有
         usage 字段（老部署）时回退 context_tokens 记估算账。
+
+        embedding_usage 是 v0.11 起响应/done 事件带的独立字段（该请求
+        期间 search_docs 触发的 embedding 用量）：其 prompt 按 source
+        归入真实/估算账并计入总 prompt，同时单独累计到
+        embedding_tokens 供拆账。字段缺失（老部署）按 0 处理。
         """
         if usage is not None:
             self._saw_usage_field = True
@@ -218,6 +227,16 @@ class Ctx:
             est = context_tokens or 0
             self.tokens += est
             self.tokens_estimated += est
+        if embedding_usage and (embedding_usage.get("calls") or 0) > 0:
+            self._saw_usage_field = True
+            eprompt = embedding_usage.get("prompt_tokens") or 0
+            self.tokens += eprompt
+            self.embedding_tokens += eprompt
+            if embedding_usage.get("source") == "api":
+                self.tokens_real += eprompt
+            else:
+                self.tokens_estimated += eprompt
+                self._saw_fallback = True
 
     @property
     def tokens_source(self):
@@ -231,7 +250,8 @@ class Ctx:
         r = self.client.chat(message, session_id)
         self.rounds += 1
         self.tool_calls += len(r.get("tool_log") or [])
-        self._absorb(r.get("usage"), r.get("context_tokens"))
+        self._absorb(r.get("usage"), r.get("context_tokens"),
+                     r.get("embedding_usage"))
         return r
 
     def stream(self, message, session_id=None, policy=None):
@@ -241,7 +261,8 @@ class Ctx:
         self.tool_calls += sum(1 for e in events
                                if e.get("type") in ("tool", "approval_required"))
         done = _done_event(events)
-        self._absorb(done.get("usage"), done.get("context_tokens"))
+        self._absorb(done.get("usage"), done.get("context_tokens"),
+                     done.get("embedding_usage"))
         return events
 
     def subdir(self, name):
@@ -487,6 +508,9 @@ def summarize(rows):
         "total_prompt_tokens_estimated": estimated,
         "total_completion_tokens": sum(r.get("completion_tokens") or 0
                                        for r in rows),
+        # v0.11：总 prompt 里 embedding 占多少，单独拆出来报。
+        "total_embedding_prompt_tokens": sum(
+            r.get("embedding_prompt_tokens") or 0 for r in rows),
         "total_seconds": round(sum(r["seconds"] for r in rows), 1),
     }
 
@@ -508,6 +532,7 @@ def run_all(client, workspace, mode):
             "prompt_tokens_real": ctx.tokens_real,
             "prompt_tokens_estimated": ctx.tokens_estimated,
             "completion_tokens": ctx.completion_tokens,
+            "embedding_prompt_tokens": ctx.embedding_tokens,
             "prompt_tokens_source": ctx.tokens_source,
             "seconds": round(time.time() - started, 1),
         })
@@ -545,7 +570,8 @@ def print_summary(results):
               f"耗时={r['seconds']}s")
     print(f"  成功率 {s['success_rate']}，总 prompt_tokens="
           f"{s['total_prompt_tokens']}（真实 {s['total_prompt_tokens_real']}"
-          f" + 估算 {s['total_prompt_tokens_estimated']}），"
+          f" + 估算 {s['total_prompt_tokens_estimated']}，其中 embedding "
+          f"{s.get('total_embedding_prompt_tokens', 0)}），"
           f"总 completion_tokens={s['total_completion_tokens']}，"
           f"总耗时 {s['total_seconds']}s")
     if results["mode"] == "mock":
