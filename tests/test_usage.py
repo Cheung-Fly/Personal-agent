@@ -117,3 +117,82 @@ def test_merge_call_totals_source_labels():
     assert mixed["prompt_tokens"] == 17
     assert mixed["completion_tokens"] is None  # 有一次没测到就不给部分和
     assert merge_call_totals([est])["source"] == "estimated"
+
+
+# ---------- v0.11：embedding 入账、分账与 per-request 暂存 ----------
+
+def test_record_embedding_api_usage_writes_row(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    from backend.usage import record_embedding_usage
+
+    row = record_embedding_usage(
+        usage={"prompt_tokens": 2318, "total_tokens": 2318},
+        texts=["块一", "块二"], purpose="index", model="embedding-3",
+        session_id="s1")
+    assert row["kind"] == "embedding" and row["purpose"] == "index"
+    assert row["source"] == "api"
+    assert row["prompt_tokens"] == 2318
+    # embedding 不生成文本：API 的 total 就等于 prompt，completion 记 0
+    # 是测到的事实，不是编数（与没测到时记 null 区分）。
+    assert row["completion_tokens"] == 0
+    assert row["total_tokens"] == 2318
+    assert _rows(tmp_path) == [row]
+
+
+def test_record_embedding_total_fallback_and_estimated(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    from backend.usage import record_embedding_usage
+
+    row = record_embedding_usage(usage={"prompt_tokens": 40}, texts=["x"],
+                                 purpose="query", model="m")
+    assert row["source"] == "api" and row["total_tokens"] == 40  # total 缺失用 prompt 补
+
+    est = record_embedding_usage(usage=None, texts=["你好世界"],
+                                 purpose="query", model="m")
+    assert est["source"] == "estimated"
+    assert est["prompt_tokens"] == 3  # 与聊天估算同一口径（4 汉字 ≈ 3）
+    assert est["completion_tokens"] is None and est["total_tokens"] is None
+
+
+def test_summarize_by_kind_and_legacy_rows():
+    """by_kind 分账：总计 = 聊天 + embedding；v0.10 前的老行没有
+    kind 字段，必须按 chat 读（老流水可读是硬约束）。"""
+    from backend.usage import summarize_usage
+
+    legacy_chat = {"ts": "2026-11-02T00:00:00+00:00", "session_id": "s0",
+                   "model": "glm-4.6", "stream": False, "source": "api",
+                   "prompt_tokens": 10, "completion_tokens": 2,
+                   "total_tokens": 12}
+    emb = {"ts": "2026-11-02T00:01:00+00:00", "session_id": "s0",
+           "model": "embedding-3", "stream": False, "kind": "embedding",
+           "purpose": "query", "source": "api", "prompt_tokens": 5,
+           "completion_tokens": 0, "total_tokens": 5}
+    s = summarize_usage(rows=[legacy_chat, emb])
+    assert s["calls"] == 2
+    assert s["prompt_tokens"] == 15 and s["total_tokens"] == 17
+    assert s["by_kind"]["chat"]["calls"] == 1
+    assert s["by_kind"]["chat"]["total_tokens"] == 12
+    assert s["by_kind"]["embedding"]["calls"] == 1
+    assert s["by_kind"]["embedding"]["prompt_tokens"] == 5
+
+
+def test_take_embedding_usage_merges_and_drains(tmp_path, monkeypatch):
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    from backend.usage import record_embedding_usage, take_embedding_usage
+
+    record_embedding_usage(usage={"prompt_tokens": 10, "total_tokens": 10},
+                           texts=["a"], purpose="index", model="m",
+                           session_id="sx")
+    record_embedding_usage(usage=None, texts=["你好世界"], purpose="query",
+                           model="m", session_id="sx")
+    merged = take_embedding_usage("sx")
+    assert merged["calls"] == 2 and merged["prompt_tokens"] == 13
+    assert merged["source"] == "mixed"  # 一真一估算，混着就标 mixed
+    assert merged["total_tokens"] is None  # 估算行没测到 total，不给部分和
+    # 取走即清空：第二次取是全 0（没消耗就没有估算成分，标 api 无害）
+    assert take_embedding_usage("sx") == {
+        "calls": 0, "prompt_tokens": 0, "total_tokens": 0, "source": "api"}
+    # 没带 session 的行不进暂存（无从归属到请求）
+    record_embedding_usage(usage={"prompt_tokens": 1, "total_tokens": 1},
+                           texts=["a"], purpose="query", model="m")
+    assert take_embedding_usage("sx")["calls"] == 0
