@@ -304,7 +304,10 @@ class _Handler(BaseHTTPRequestHandler):
                 "data": [{"object": "embedding", "index": i, "embedding": v}
                          for i, v in enumerate(vecs)],
                 "model": body.get("model", "mock-embedding"),
-                "usage": {"prompt_tokens": sum(len(t) for t in texts)},
+                # v0.11：补 total_tokens 跟上真实智谱 embeddings 的
+                # usage 形态（只有 prompt/total、没有 completion）。
+                "usage": {"prompt_tokens": sum(len(t) for t in texts),
+                          "total_tokens": sum(len(t) for t in texts)},
             }
             return self._send(json.dumps(payload))
         if self.path.endswith("/chat/completions"):
