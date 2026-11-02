@@ -18,6 +18,9 @@
 - 失败不打断循环：无 Key、接口报错、语料为空都返回清楚的错误
   文本（复用 v0.1 的失败文本回喂口径），模型可改用 read_file 或
   如实回答；本模块对外不抛异常。
+- 计量（v0.11）：embedding 调用的真实 usage 经 usage.py 落
+  data/usage.log（kind=embedding，purpose 分 index/query），
+  /api/usage 与评测成本自此含 embedding，不再低估。
 
 只用标准库 + 项目已有的 httpx（embedding 调用照 main.py 调 LLM 的
 写法），零新增依赖。
@@ -32,6 +35,7 @@ from pathlib import Path
 import httpx
 
 from .tools import WORKSPACE
+from .usage import record_embedding_usage
 
 # 与聊天共用同一 base URL 与 Key（.env 里同一套配置）。
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
@@ -145,9 +149,15 @@ def collect_chunks(docs: Path, workspace: Path | None = None) -> list[dict]:
 
 # ---------- embedding ----------
 
-def embed_texts(texts: list[str]) -> list[list[float]]:
+def embed_texts(texts: list[str], purpose: str = "query",
+                session_id: str | None = None) -> list[list[float]]:
     """调 {LLM_BASE_URL}/embeddings 批量算向量，≤64 条/次。
-    失败抛 RagError（无 Key、接口报错、返回条数对不上）。"""
+    失败抛 RagError（无 Key、接口报错、返回条数对不上）。
+
+    v0.11：每批响应成功后把 usage 递给 usage.py 落盘（kind=embedding，
+    purpose 区分索引构建 index / 查询向量化 query）——此前只 print 到
+    服务端日志、/api/usage 账里没有 embedding，成本是低估的。记账在
+    本函数内做，注入 fake embed 的测试路径不走这里、自然不记账。"""
     if not LLM_API_KEY:
         raise RagError("未配置 LLM_API_KEY，无法调用 embedding 接口")
     vectors: list[list[float]] = []
@@ -168,6 +178,8 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
             usage = data.get("usage")
             if usage:
                 print(f"[rag] embeddings usage: {usage}")
+            record_embedding_usage(usage=usage, texts=batch, purpose=purpose,
+                                   model=EMBEDDING_MODEL, session_id=session_id)
             items = sorted(data.get("data") or [], key=lambda d: d.get("index", 0))
             if len(items) != len(batch):
                 raise RagError(f"embedding 返回条数对不上：要 {len(batch)} 条、回 {len(items)} 条")
@@ -184,7 +196,8 @@ def _load_index(path: Path) -> dict | None:
         return None
 
 
-def ensure_index(chunks: list[dict], embed_fn=None, index_file: Path | None = None) -> list[dict]:
+def ensure_index(chunks: list[dict], embed_fn=None, index_file: Path | None = None,
+                 session_id: str | None = None) -> list[dict]:
     """保证每块都有向量，返回带 embedding 的块列表。
 
     缓存按内容哈希复用：没变的块直接用旧向量，只给新块/改过的块
@@ -192,7 +205,13 @@ def ensure_index(chunks: list[dict], embed_fn=None, index_file: Path | None = No
     EMBEDDING_MODEL 不符、或维度与 EMBEDDING_DIMENSIONS 不符
     （注入 fake embed 的测试除外），整表作废重建：换了模型，
     旧向量和新向量不在一个空间里，混着比余弦没意义。"""
-    ef = embed_fn or embed_texts
+    if embed_fn is not None:
+        ef = embed_fn
+    else:
+        # v0.11：真实路径包一层 purpose="index"，索引构建的 embedding
+        # 成本与查询成本在账上分开（见 usage.record_embedding_usage）。
+        def ef(texts):
+            return embed_texts(texts, purpose="index", session_id=session_id)
     path = index_file or index_path()
     cached = _load_index(path)
     reuse: dict[str, dict] = {}
@@ -246,7 +265,8 @@ def cosine(a: list[float], b: list[float]) -> float:
 def search_docs(query: str, *, top_k: int | None = None, min_score: float | None = None,
                 embed_fn=None, docs: Path | None = None,
                 index_file: Path | None = None,
-                workspace: Path | None = None) -> str:
+                workspace: Path | None = None,
+                session_id: str | None = None) -> str:
     """search_docs 工具的实际入口：返回给模型的文本，永不抛异常。
 
     命中：带出处的段落，总长约 2000 字符封顶；未命中/出错：明确
@@ -263,9 +283,14 @@ def search_docs(query: str, *, top_k: int | None = None, min_score: float | None
         chunks = collect_chunks(d, workspace)
         if not chunks:
             return "未找到相关文档：语料目录里没有可检索的 .md 文档（MEMORY.md 不进检索）"
-        indexed = ensure_index(chunks, embed_fn=embed_fn, index_file=index_file)
-        ef = embed_fn or embed_texts
-        qvec = ef([query])[0]
+        indexed = ensure_index(chunks, embed_fn=embed_fn, index_file=index_file,
+                               session_id=session_id)
+        if embed_fn is not None:
+            qvec = embed_fn([query])[0]
+        else:
+            # v0.11：查询向量化记 purpose="query" 的账（见 embed_texts）。
+            qvec = embed_texts([query], purpose="query",
+                               session_id=session_id)[0]
         scored = sorted(
             ((cosine(qvec, c["embedding"]), c) for c in indexed),
             key=lambda t: t[0], reverse=True,
