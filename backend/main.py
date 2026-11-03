@@ -66,6 +66,62 @@ def _denied_text(tool_name: str, level: str, reason: str, stream: bool) -> str:
             "请在流式对话（/api/chat/stream）里审批通过后重试")
 
 
+# ---------------- v0.12：长期记忆写入护栏（只挂流式循环） ----------------
+# t09 四轮 live 样本（败/过/过/败）证明：模型读完 MEMORY.md、用户也
+# 明说要写入时，仍可能以纯文本收尾，write_file 根本没发出——丢的不是
+# “知不知道”，是“读完→收尾”这一步的工具调用。v0.9 往 SYSTEM_PROMPT
+# 加的那句只是把发生率压低、没根治；本版改在循环层兜：三条件齐备且
+# 本请求还没推过时，往本轮上下文塞一条提醒、续跑一轮，逼模型要么真
+# 发出 write_file（仍走中风险审批卡），要么明说不写。系统绝不代写：
+# 代写 = 绕过审批卡，是红线。非流式 /api/chat 按设计本就拒绝写
+# MEMORY.md（等不起人点卡），在那里推只会把模型推向注定被拒的调用，
+# 所以护栏只做流式，非流式保持现状（已知边界，见 v0.12 设计草稿）。
+MEMORY_NUDGE_TEXT = (
+    "系统提醒：你本轮已读取 MEMORY.md，用户明确要求把内容写入长期记忆，"
+    "但你尚未发出 write_file 调用。请要么现在发出 write_file 把内容写进 "
+    "MEMORY.md（写入会弹出审批卡由用户确认），要么在回复中明确说明你决定"
+    "不写以及原因。不要只给出拟写入的内容就结束。"
+)
+# 写入类动词与记忆类名词须同时出现才算“明确要求写长期记忆”。
+# 判定故意保守：只读提问（“我的偏好是什么”）不含写入动词，天然出局；
+# 宁可漏推，也不能把正常答疑误推成写入。
+_MEMORY_WRITE_VERBS = ("写进", "写入", "记进", "记到", "记下", "存进", "存到", "保存到")
+_MEMORY_NOUNS = ("MEMORY", "长期记忆")
+
+
+def _memory_write_intent(user_message: str) -> bool:
+    """用户消息是否明确要求写入长期记忆（护栏条件 ①）。"""
+    text = user_message or ""
+    upper = text.upper()
+    return (any(v in text for v in _MEMORY_WRITE_VERBS)
+            and any(n in upper for n in _MEMORY_NOUNS))
+
+
+def _is_memory_path(args: dict | None) -> bool:
+    """工具参数 path 是否就是工作区根的 MEMORY.md（与 approval 分级
+    口径一致：只认根目录那个长期记忆文件，子目录同名文件不算）。"""
+    rel = ((args or {}).get("path") or "").replace("\\", "/")
+    while rel.startswith("./"):
+        rel = rel[2:]
+    return rel == "MEMORY.md"
+
+
+def _memory_nudge_needed(user_message: str,
+                         request_calls: list[tuple[str, dict]]) -> bool:
+    """护栏触发判定——同一请求内三条件全满足才返回 True：
+    ① 用户明确要求写入长期记忆（_memory_write_intent）；
+    ② 本请求读过 MEMORY.md（read_file 且 path 为 MEMORY.md）；
+    ③ 本请求没发出过对 MEMORY.md 的 write_file（发过即算发过，
+    成败不论——审批被拒是审批的事，护栏不重复推）。"""
+    if not _memory_write_intent(user_message):
+        return False
+    if not any(name == "read_file" and _is_memory_path(args)
+               for name, args in request_calls):
+        return False
+    return not any(name == "write_file" and _is_memory_path(args)
+                   for name, args in request_calls)
+
+
 class ChatIn(BaseModel):
     message: str
     history: list[dict] = []  # [{"role": "user"/"assistant", "content": "..."}]
@@ -238,7 +294,11 @@ async def stream_agent(body: ChatIn, session_id: str):
     # 顺序注意：先组装上下文再落库，否则本轮 user 会在上下文里出现两次。
     save_message(session_id, "user", body.message)
     usage_rows = []  # v0.10：本请求内每次 LLM 调用的真实用量，逐次落盘
-    for _ in range(MAX_ROUNDS):
+    # v0.12 护栏状态：本请求已发出的工具调用（判定“读过/写过 MEMORY.md”
+    # 用）与“已推过一次”标记。护栏每请求最多推一次，MAX_ROUNDS 不变。
+    request_calls: list[tuple[str, dict]] = []
+    nudged = False
+    for round_no in range(MAX_ROUNDS):
         content_parts: list[str] = []
         calls: dict[int, dict] = {}
         round_usage: dict | None = None
@@ -300,6 +360,22 @@ async def stream_agent(body: ChatIn, session_id: str):
                          "content": "".join(content_parts) or None,
                          "tool_calls": tool_calls or None})
         if not tool_calls:
+            # v0.12 护栏：没发工具调用本该收尾，但若三条件齐备（用户明说
+            # 要写长期记忆 + 本请求读过 MEMORY.md + 没发过 write_file）
+            # 且还没推过、且后面还有轮次可用，就不收尾——往本轮上下文
+            # 塞一条提醒续跑一轮。提醒只进上下文、不落会话库；第二次再
+            # 以纯文本收尾就如实返回，系统不代写（红线）。
+            if (not nudged and round_no + 1 < MAX_ROUNDS
+                    and _memory_nudge_needed(body.message, request_calls)):
+                nudged = True
+                log_audit(session_id=session_id, tool="memory_guardrail",
+                          args={"path": "MEMORY.md"}, level=LOW,
+                          outcome="memory_write_nudge",
+                          result_summary="用户要求写长期记忆且已读 MEMORY.md，"
+                                         "模型以纯文本收尾未发 write_file；"
+                                         "注入提醒续跑一轮")
+                messages.append({"role": "user", "content": MEMORY_NUDGE_TEXT})
+                continue
             reply = "".join(content_parts)
             save_message(session_id, "assistant", reply)
             yield _sse({"type": "done", "reply": reply, "session_id": session_id,
@@ -311,6 +387,7 @@ async def stream_agent(body: ChatIn, session_id: str):
         for call in tool_calls:
             name = call["function"]["name"]
             args = json.loads(call["function"]["arguments"] or "{}")
+            request_calls.append((name, args))  # v0.12：护栏判定用（发过即算）
             level, reason = classify(name, args, WORKSPACE)
             if level == HIGH:
                 # 高风险：默认拒绝，卡上也不给过，直接回喂失败文本。
