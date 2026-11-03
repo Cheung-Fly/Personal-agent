@@ -1,5 +1,63 @@
 # Changelog
 
+## v0.12.0 — 2026-11-03
+
+Fix t09 (long-term memory write) at the mechanism layer: a guardrail
+in the streaming agent loop. Four live runs of the frozen eval table
+(v0.8 fail / v0.9 pass / v0.10 pass / v0.11 fail) proved the v0.9
+prompt sentence only lowered the failure rate — the model still
+sometimes reads MEMORY.md and finishes in plain text without ever
+emitting the `write_file` call, so the approval flow never fires and
+a new session honestly answers "I don't know". This version adds no
+prompt sentence and changes no checker: it fixes the loop.
+
+- Where: `stream_agent` in `backend/main.py`, on the shared
+  "no tool calls = final reply" branch. Non-streaming `/api/chat`
+  is deliberately untouched — by design it refuses MEMORY.md writes
+  (it cannot wait for a human approval click), so a nudge there
+  would only push the model toward a call that is certain to be
+  refused. Known boundary, recorded as such.
+- Trigger — all three must hold within the same request, otherwise
+  the guardrail stays out of the way:
+  1. the user's message explicitly asks to write to long-term
+     memory (a write verb and a memory noun must co-occur;
+     read-only questions like "what is my lucky number?" never
+     qualify — that false-positive is the one this design must
+     never commit),
+  2. the request has read MEMORY.md (`read_file` on the workspace
+     root MEMORY.md), and
+  3. the request has not emitted any `write_file` to MEMORY.md
+     (emitted counts, whatever the approval outcome — the
+     guardrail does not second-guess approvals).
+- Action: instead of finishing, the loop appends one reminder as a
+  user-role message (in-context only, never saved to the session
+  store) and continues for one more round; the model then either
+  emits `write_file` — which still goes through the medium-risk
+  approval card, the system never writes on its behalf (writing
+  for it would bypass the card: a red line) — or states in its
+  reply that it decided not to write, and that reply stands.
+- Hard cap: at most one nudge per request, and only when at least
+  one loop round remains afterwards. `MAX_ROUNDS` (12) is
+  unchanged; the guardrail never extends the budget, and a second
+  plain-text finish is returned as-is.
+- Audit: each nudge logs one audit row (`tool=memory_guardrail`,
+  `outcome=memory_write_nudge`), separate from tool-call rows, so
+  a failed sample can be told apart as "nudged but still didn't
+  write" vs "never triggered".
+- Untouched: `SYSTEM_PROMPT`, tool schemas, approval
+  classification, the eval tasks and checkers, `MAX_ROUNDS`, the
+  non-streaming loop.
+- Tests: pytest 90 passed (82 + 8 new in `tests/test_guardrail.py`:
+  intent/path/predicate matrix plus scripted-stream loop tests —
+  nudges exactly once, second plain-text finish returned honestly,
+  read-only questions never nudged, no nudge on the last round,
+  and the nudged `write_file` still pauses at the approval card
+  with the file untouched until approved). Mock eval chain 10/10
+  — mechanism only, not a success rate.
+- Live verification (deployed v0.12.0 / GLM-4.6, same frozen
+  10 tasks, same checkers): results backfilled below after the
+  t09 5-sample run and the full-table re-run.
+
 ## v0.11.0 — 2026-11-02
 
 Complete the cost accounting: embedding calls are on the books.
