@@ -111,6 +111,7 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.9 t09 fix: one `SYSTEM_PROMPT` sentence directing the model to call `write_file` instead of proposing edits in chat; verified by re-running the frozen eval table live
 - [x] v0.10 Cost statistics: real per-call `usage` captured on both paths (streaming via `stream_options.include_usage`), appended to `data/usage.log`, aggregated at `GET /api/usage` (totals / by-day / by-session, API vs estimated never mixed); eval cost column now reports real usage first with the estimate as a labelled fallback
 - [x] v0.11 Cost accounting completed: embedding calls are on the books too — every embeddings response's `usage` is recorded in the same `data/usage.log` (`kind=embedding`, `purpose=index|query`), `GET /api/usage` splits chat vs embedding (`by_kind`, total = sum of both), chat responses / stream `done` events carry a per-request `embedding_usage`, and the eval cost column includes embedding spend for `search_docs` tasks
+- [x] v0.12 t09 mechanism-layer fix: a guardrail in the streaming loop — when the user explicitly asked to write long-term memory, the request read MEMORY.md, and the model still finishes in plain text without emitting `write_file`, the loop injects one reminder and continues a round (at most once per request, never writes on the model's behalf; the write still goes through the approval card). Verified with a 5-sample t09 run plus a full-table live re-run
 - [ ] MCP server for the tool layer; git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
