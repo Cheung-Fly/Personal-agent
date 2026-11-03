@@ -55,8 +55,36 @@ prompt sentence and changes no checker: it fixes the loop.
   with the file untouched until approved). Mock eval chain 10/10
   — mechanism only, not a success rate.
 - Live verification (deployed v0.12.0 / GLM-4.6, same frozen
-  10 tasks, same checkers): results backfilled below after the
-  t09 5-sample run and the full-table re-run.
+  10 tasks, same checkers; `eval/results/2026-11-03-live.json`
+  and `eval/results/2026-11-03-t09-samples.json`), the two sets
+  of numbers kept strictly separate:
+  - t09 sampling — this version's acceptance metric: the t09
+    task run 5 independent times: **5/5 passed** (16,179 real
+    prompt tokens + 1,140 completion, 98.1s in total). The
+    guardrail fired **0 times**: in every sample the model read
+    MEMORY.md and emitted `write_file` on its own. Stated
+    plainly, because it matters: this sampling does not show
+    the guardrail rescuing a single run — the failure mode
+    simply did not occur in these five samples, so the
+    guardrail's live rescue rate remains unmeasured; its
+    mechanism is proven by the unit tests above, not by live
+    evidence.
+  - Full-table re-run: **10/10**, 93,717 real prompt tokens
+    (23 of them embedding) + 2,078 completion, 234.5s. t09
+    passed here as well (again with no nudge), and the t06
+    approval-card / t07 high-risk red lines held.
+  - Running tally for t09 across full-table runs: fail (v0.8) /
+    pass (v0.9) / pass (v0.10) / fail (v0.11) / pass (v0.12),
+    plus 5/5 in this version's dedicated sampling. The honest
+    conclusion is "passed all six live executions today, with
+    the guardrail armed but never triggered" — not "fixed once
+    and for all": six executions are a small sample against a
+    failure that historically appeared in 2 of 4 table runs,
+    and a guardrail that never fired has an unknown effect size.
+  - Data hygiene: online MEMORY.md md5 identical before and
+    after every run today (`8e207be7b9ddd1a04f0a756b16021ab7`,
+    pre-run backup verified against it), no eval residue left
+    in the workspace, server git status clean.
 
 ## v0.11.0 — 2026-11-02
 
