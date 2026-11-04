@@ -133,6 +133,15 @@ def classify(tool_name: str, args: dict, workspace: Path) -> tuple[str, str]:
         return LOW, "写新文件"
     if tool_name == "exec_command":
         return _classify_exec(args.get("command", ""))
+    if tool_name.startswith("mcp_"):
+        # v0.13：MCP 工具按启动时注册表的定级走——配置 risk 覆盖优先，
+        # 没配默认 MEDIUM（弹卡）。名字带 mcp_ 前缀但不在注册表里
+        # （没注册成功 / 模型编的）按未知工具 HIGH，不给蒙混空间。
+        from . import mcp
+        risk = mcp.registered_risk(tool_name)
+        if risk is not None:
+            return risk, "MCP 工具，按注册表定级（配置覆盖优先，默认中风险）"
+        return HIGH, f"未知工具：{tool_name}"
     return HIGH, f"未知工具：{tool_name}"
 
 
