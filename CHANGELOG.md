@@ -76,10 +76,35 @@ no official filesystem server (that would need Node in the image).
   config ignored, handshake timeout, a full stdio round-trip
   against the demo server, and the `run_tool` defense layers).
   Mock eval chain 10/10 — mechanism only.
-- Live verification (MCP probe + full-table re-run) is recorded
-  below after deployment; the probe is kept strictly separate
+- Live verification (2026-11-04, deployed e0dcb7b / GLM-4.6).
+  Deployment log shows the demo server connecting at startup
+  and 3 tools registered. MCP probe (kept strictly separate
   from the frozen 10-task table, per the extension-table
-  discipline that starts with this version.
+  discipline that starts with this version; raw record in
+  `eval/results/2026-11-04-mcp-probe.json`): all three tiers
+  exercised end-to-end through real streamed chat —
+  `mcp_demo_demo_time` (low) executed with no approval card
+  and returned the server time; `mcp_demo_demo_append_note`
+  (medium) raised exactly one approval card, executed after
+  approval, and the line landed in the demo file;
+  `mcp_demo_demo_delete_note` (high) was refused outright
+  with no card and the file stayed intact. `data/audit.log`
+  carries the three namespaced rows (auto / approved /
+  high_denied) as independent evidence. One honesty note: the
+  probe client session was dropped by an SSH disconnect on
+  its first run after all three calls had already executed
+  server-side; the probe was re-run detached and its client-
+  side verdicts (card counts, result texts, file checks) are
+  what is recorded — both runs agree in the audit log.
+  Frozen-table regression re-run, same checker, live: 10/10
+  (`eval/results/2026-11-04-live.json`; real prompt tokens
+  102,106 incl. 19 embedding, completion 2,146, 249.4s).
+  t09 passed again; the memory guardrail fired 0 times this
+  run (0 across the whole audit log so far) — the pass is not
+  credited to the guardrail, whose effect size stays unknown;
+  per-run t09 result + trigger count keep being recorded.
+  Server-side MEMORY.md restored after the run, md5 verified
+  unchanged.
 
 ## v0.12.0 — 2026-11-03
 
