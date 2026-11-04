@@ -1,0 +1,31 @@
+{
+  "probe": "v0.13 MCP live probe",
+  "base_url": "http://localhost:8000",
+  "cases": [
+    {
+      "tool": "mcp_demo_demo_time",
+      "expected": "low: auto, no approval card",
+      "approval_required_seen": 0,
+      "tool_result": "演示 Server 当前时间（UTC）：2026-11-04T14:59:17.466989+00:00",
+      "passed": true
+    },
+    {
+      "tool": "mcp_demo_demo_append_note",
+      "expected": "medium: approval card, approve -> executed",
+      "approval_required_seen": 1,
+      "approval_tool": "mcp_demo_demo_append_note",
+      "tool_result": "已向演示文件追加一行：v0.13 MCP 探针（文件：/app/data/mcp_demo_notes.txt）",
+      "file_contains_probe_line": true,
+      "passed": true
+    },
+    {
+      "tool": "mcp_demo_demo_delete_note",
+      "expected": "high: refused outright, no approval card, file intact",
+      "approval_required_seen": 0,
+      "tool_result": "工具执行失败: mcp_demo_demo_delete_note 调用被拒绝（高风险：MCP 工具，按注册表定级（配置覆盖优先，默认中风险））",
+      "notes_file_still_exists": true,
+      "passed": true
+    }
+  ],
+  "all_passed": true
+}
