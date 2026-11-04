@@ -91,6 +91,7 @@ Check it's alive: `curl http://localhost:8000/health`
 | `RAG_DOCS_DIR` | Doc corpus for `search_docs` (default `WORKSPACE_DIR/docs`) |
 | `RAG_TOP_K` / `RAG_MIN_SCORE` | Passages returned per search (default `3`) / minimum cosine similarity (default `0.3`; below it the tool honestly returns "not found") |
 | `MAX_TOOL_ROUNDS` | Agent loop limit (default `12`) |
+| `MCP_SERVERS_JSON` | External MCP servers to connect at startup (v0.13, stdio, JSON array; empty = built-in tools only). MCP tools are **not** bound by the workspace sandbox — this config is the trust boundary; per-tool `risk` overrides, default `medium` |
 
 ## Security / 安全
 
@@ -112,14 +113,15 @@ Check it's alive: `curl http://localhost:8000/health`
 - [x] v0.10 Cost statistics: real per-call `usage` captured on both paths (streaming via `stream_options.include_usage`), appended to `data/usage.log`, aggregated at `GET /api/usage` (totals / by-day / by-session, API vs estimated never mixed); eval cost column now reports real usage first with the estimate as a labelled fallback
 - [x] v0.11 Cost accounting completed: embedding calls are on the books too — every embeddings response's `usage` is recorded in the same `data/usage.log` (`kind=embedding`, `purpose=index|query`), `GET /api/usage` splits chat vs embedding (`by_kind`, total = sum of both), chat responses / stream `done` events carry a per-request `embedding_usage`, and the eval cost column includes embedding spend for `search_docs` tasks
 - [x] v0.12 t09 mechanism-layer fix: a guardrail in the streaming loop — when the user explicitly asked to write long-term memory, the request read MEMORY.md, and the model still finishes in plain text without emitting `write_file`, the loop injects one reminder and continues a round (at most once per request, never writes on the model's behalf; the write still goes through the approval card). Verified with a 5-sample t09 run plus a full-table live re-run
-- [ ] MCP server for the tool layer; git & browser (Playwright) tools
+- [x] v0.13 MCP tool access (client side): at startup the agent connects to external MCP servers over stdio (pure-stdlib JSON-RPC client, servers declared in `MCP_SERVERS_JSON`), discovered tools enter the tool table namespaced as `mcp_<server>_<tool>` and are graded by the approval tiers (registered default `medium` with per-tool overrides; unregistered `mcp_` names stay refused). Ships with a minimal in-repo demo MCP server (`backend/mcp_demo.py`, 3 tools covering low/medium/high) as the first protocol counterpart — a real MCP peer, but our own code, not a third-party or image-studio integration. MCP tools are NOT bound by the workspace sandbox; the server config is the trust boundary, subprocesses get a minimal env (no LLM key)
+- [ ] Expose the tool layer as an MCP server (the reverse direction); git & browser (Playwright) tools
 - [ ] Desktop shell (Tauri)
 
 ## Project structure / 目录
 
 ```
 personal-agent/
-├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py) + doc search (rag.py) + cost statistics (usage.py)
+├─ backend/          # orchestrator (main.py) + tools (tools.py) + sessions (storage.py) + long-term memory (memory.py) + approval tiers (approval.py) + context budget (context.py) + doc search (rag.py) + cost statistics (usage.py) + MCP client (mcp.py) + demo MCP server (mcp_demo.py)
 ├─ eval/             # fixed-task eval set (v0.8): task definitions + deterministic checkers + mock/live runners + baseline results
 ├─ static/           # web chat frontend
 ├─ agent_workspace/  # the only place the agent can touch (persisted volume)
