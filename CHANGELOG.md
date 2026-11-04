@@ -1,5 +1,86 @@
 # Changelog
 
+## v0.13.0 — 2026-11-04
+
+MCP tool access, client side: the agent now connects to external
+MCP servers at startup and folds their tools into its tool table —
+the tool layer stops being five hard-coded schemas. Scope is the
+option Chung picked (A): stdio transport only, pure standard
+library, zero new dependencies, Dockerfile untouched; no SSE, and
+no official filesystem server (that would need Node in the image).
+
+- Why registration + grading is the real work: the protocol itself
+  is subprocess + JSON-RPC lines, but `approval.classify()` graded
+  every unknown tool HIGH (refused) and `run_tool()` answered
+  "unknown tool". Without a registry, an MCP tool the model called
+  would be refused on the spot. So this version is mostly plumbing
+  around the existing approval/audit spine, not protocol heroics.
+- Client (`backend/mcp.py`, stdlib only): `MCPClient` runs one
+  server subprocess over stdio — initialize handshake (10s
+  timeout), `tools/list`, `tools/call` (60s timeout, matching
+  `exec_command`). It is deliberately synchronous: the tool layer
+  already executes synchronously, so the client plugs into the
+  same path instead of forcing the whole layer async. A reader
+  thread pairs responses by JSON-RPC id; timeouts, child crashes
+  and bad JSON all become ordinary tool-failure text fed back to
+  the model — never a 500, never a broken loop. Calls to the same
+  server are serialized with a lock (parallel tool execution is
+  v0.16's problem, not this version's).
+- Registry: discovered tools are namespaced `mcp_<server>_<tool>`
+  (sanitized to `[A-Za-z0-9_-]`), the MCP `inputSchema` is passed
+  through as the function parameters, name collisions keep the
+  first registration and skip later ones with a log line, and
+  names over the 64-char function-name limit are skipped, never
+  truncated (a truncated name could collide). Config is one JSON
+  array in `MCP_SERVERS_JSON` (.env), per server: `name`,
+  `command` (+ `args`), `env`, optional `allow` whitelist of tool
+  names, optional per-tool `risk` overrides.
+- Grading: `classify()` gains an MCP branch — registered tools use
+  their configured risk, default MEDIUM (approval card); a name
+  that merely starts with `mcp_` but is not in the registry stays
+  HIGH/unknown. `run_tool()` adds the same defense in depth as
+  `write_file`: HIGH refused outright, MEDIUM without an approval
+  does not execute. Built-in tools' grading is untouched, and MCP
+  calls go through the same classify → card → audit flow as
+  everything else — no backdoor. Audit rows carry the namespaced
+  name, so the server is identifiable from `data/audit.log` alone.
+- Trust boundary, stated plainly: MCP tools are NOT bound by the
+  workspace sandbox (`tools._safe_path`). What an external server
+  can do is up to its own code. The configuration is the trust
+  boundary — server commands come only from the operator's .env,
+  never from the model or the chat user; the `allow` whitelist and
+  the MEDIUM default exist so an unfamiliar server is only ever
+  granted the tools you named. Server subprocesses get a minimal
+  environment (PATH + explicitly configured `env`); the app's
+  `LLM_API_KEY` / `ACCESS_TOKEN` are never passed through.
+- Startup resilience: no config, malformed JSON, or a server that
+  fails its handshake only skips that server with a log line — the
+  app starts with the built-in tools alone. Servers connect in a
+  FastAPI lifespan hook and are terminated on shutdown.
+- First counterpart: `backend/mcp_demo.py`, a minimal stdio MCP
+  server in this repo (it lives in `backend/` because the
+  Dockerfile only COPYs `backend` + `static` — a demo in `eval/`
+  could never run in the deployed image). Three tools sized to
+  the approval tiers, graded via config: `demo_time` (low, auto),
+  `demo_append_note` (medium, card), `demo_delete_note` (high,
+  refused). Honest framing: it is a real MCP protocol peer —
+  separate process, real handshake and `tools/call` — but it is
+  our own code. It does not prove interop with any third-party
+  server, and it is not the image studio's server; connecting
+  that one is a separate probe after this version.
+- Tests: pytest 103 passed (90 + 13 new in `tests/test_mcp.py`:
+  namespacing/sanitizing, overlong-name skip, conflict first-wins,
+  allow whitelist, risk default/override/invalid fallback,
+  unregistered `mcp_` names graded HIGH, subprocess env excluding
+  the LLM key, bad servers not blocking registry start, malformed
+  config ignored, handshake timeout, a full stdio round-trip
+  against the demo server, and the `run_tool` defense layers).
+  Mock eval chain 10/10 — mechanism only.
+- Live verification (MCP probe + full-table re-run) is recorded
+  below after deployment; the probe is kept strictly separate
+  from the frozen 10-task table, per the extension-table
+  discipline that starts with this version.
+
 ## v0.12.0 — 2026-11-03
 
 Fix t09 (long-term memory write) at the mechanism layer: a guardrail
