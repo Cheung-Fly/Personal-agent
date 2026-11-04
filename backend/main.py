@@ -1,6 +1,8 @@
 """后端编排层：FastAPI + Agent Loop（调模型 → 执行工具 → 回喂 → 循环）。"""
+import asyncio
 import json
 import os
+from contextlib import asynccontextmanager
 
 import httpx
 from dotenv import load_dotenv
@@ -27,7 +29,8 @@ from .storage import (
     load_history,
     save_message,
 )
-from .tools import TOOL_SCHEMAS, WORKSPACE, run_tool
+from . import mcp
+from .tools import TOOL_SCHEMAS, WORKSPACE, all_tool_schemas, run_tool
 from .usage import (
     merge_call_totals,
     record_usage,
@@ -48,7 +51,23 @@ SYSTEM_PROMPT = """你是一个个人 AI Agent，运行在用户的服务器上�
 做多步任务时：先看现状，再动手，跑完要验证结果，最后用简洁的话汇报。
 不要编造工具结果；失败了就看报错、修正、重试。"""
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_app):
+    """应用生命周期：启动时接 MCP Server、关停时清理子进程（v0.13）。
+
+    MCP 是加法不是启动前置：没配 MCP_SERVERS_JSON、配置写错、某个
+    Server 握手失败，都只在 mcp.start_from_env 里记日志跳过，这里
+    不会抛。握手是阻塞 IO，放 to_thread 里别卡事件循环。注册到的
+    工具经 tools.all_tool_schemas() 与内置 5 工具合并后发给模型。"""
+    await asyncio.to_thread(
+        mcp.start_from_env,
+        {schema["function"]["name"] for schema in TOOL_SCHEMAS},
+    )
+    yield
+    mcp.shutdown()
+
+
+app = FastAPI(lifespan=lifespan)
 
 # 待确认的审批卡：内存 dict（v0.5），重启就丢，未确认不执行。
 approvals = ApprovalStore()
@@ -177,7 +196,7 @@ async def call_llm_with_usage(messages: list[dict]) -> tuple[dict, dict | None]:
         r = await client.post(
             f"{LLM_BASE_URL}/chat/completions",
             headers={"Authorization": f"Bearer {LLM_API_KEY}"},
-            json={"model": LLM_MODEL, "messages": messages, "tools": TOOL_SCHEMAS},
+            json={"model": LLM_MODEL, "messages": messages, "tools": all_tool_schemas()},
         )
         r.raise_for_status()
         data = r.json()
@@ -308,7 +327,7 @@ async def stream_agent(body: ChatIn, session_id: str):
                     "POST",
                     f"{LLM_BASE_URL}/chat/completions",
                     headers={"Authorization": f"Bearer {LLM_API_KEY}"},
-                    json={"model": LLM_MODEL, "messages": messages, "tools": TOOL_SCHEMAS,
+                    json={"model": LLM_MODEL, "messages": messages, "tools": all_tool_schemas(),
                           "stream": True,
                           # v0.10：流式 usage 只在带这个开关时于尾 chunk 返回。
                           "stream_options": {"include_usage": True}},
