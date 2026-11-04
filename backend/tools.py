@@ -3,7 +3,8 @@ import os
 import subprocess
 from pathlib import Path
 
-from .approval import HIGH, classify
+from . import mcp
+from .approval import HIGH, MEDIUM, classify
 
 WORKSPACE = Path(os.environ.get("WORKSPACE_DIR", "./agent_workspace")).resolve()
 WORKSPACE.mkdir(parents=True, exist_ok=True)
@@ -75,6 +76,13 @@ TOOL_SCHEMAS = [
 ]
 
 
+def all_tool_schemas() -> list:
+    """发给模型的完整工具表：内置 5 个 + 启动时注册的 MCP 工具
+    （v0.13）。没配 MCP 时后半截为空，行为与之前完全一致。
+    main.py 两条路径（流式 / 非流式）都改用这份合并表发给模型。"""
+    return TOOL_SCHEMAS + mcp.registered_schemas()
+
+
 def _safe_path(rel: str) -> Path:
     p = (WORKSPACE / rel).resolve()
     if WORKSPACE not in p.parents and p != WORKSPACE:
@@ -125,6 +133,20 @@ def run_tool(name: str, args: dict, approved: bool = False,
                 capture_output=True, text=True, timeout=60,
             )
             return f"exit={r.returncode}\nstdout:\n{r.stdout[:10000]}\nstderr:\n{r.stderr[:5000]}"
+        if mcp.is_registered(name):
+            # v0.13 MCP 分发。纵深防御（与 write_file 同理，主流程之外
+            # 再拦一道）：MCP 工具的风险以注册表为准——high 直接拒；
+            # medium 没经审批卡点过（approved=False）也不执行，防止
+            # 直接调 run_tool 绕过主流程。注意 MCP 工具不受 _safe_path
+            # 工作区沙箱约束：外部 Server 能干什么取决于它自己的
+            # 代码，信任边界在 .env 配置（见 backend/mcp.py 模块头）。
+            level, reason = classify(name, args, WORKSPACE)
+            if level == HIGH:
+                return f"工具执行失败: {name} 调用被拒绝（高风险：{reason}）"
+            if level == MEDIUM and not approved:
+                return (f"工具执行失败: {name} 是中风险 MCP 工具，"
+                        f"需经审批通过后执行（{reason}）")
+            return mcp.call_tool(name, args)
         return f"未知工具: {name}"
     except Exception as e:  # 工具失败也要回喂给模型，让它自己纠错
         return f"工具执行失败: {type(e).__name__}: {e}"
