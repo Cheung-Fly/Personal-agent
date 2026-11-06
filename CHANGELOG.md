@@ -1,5 +1,79 @@
 # Changelog
 
+## v0.14.0 — 2026-11-07
+
+Long-term memory v2: itemised storage + on-demand retrieval, replacing
+v0.4's whole-file injection. What did not change is as deliberate as
+what did: the write path is still "the model proposes `write_file` on
+MEMORY.md, the user approves on the card, only then does anything
+persist" — no system-side writing, no approval bypass.
+
+- Storage: facts now live in a `memory_items` table in the same
+  SQLite DB as sessions (one row per fact, `created_at` + `source`:
+  migrated / conversation / file_edit). `MEMORY.md` remains the write
+  landing and the human-readable export, but it is no longer the
+  injection source. After every change the file is incrementally
+  synced into items by content hash: an approved write syncs
+  immediately inside `run_tool`, manual edits sync lazily at context
+  assembly. Facts that disappear from the file are marked
+  `superseded` and kept — never deleted — so "what did the agent used
+  to believe" stays auditable; facts that stay keep their original
+  timestamp and source.
+- Retrieval (option A, keywords — the design draft's recommendation,
+  confirmed by Chung): the current question is scored against active
+  items by token coverage (Chinese bigrams + latin/digit tokens, the
+  same tokenisation idea as the v0.7 doc search, but fully local:
+  zero API calls, zero new dependencies, deterministic). A hit needs
+  coverage ≥ `MEMORY_MIN_SCORE` (0.2) with at least 2 matched tokens
+  (or full coverage of a ≤2-token query); at most `MEMORY_TOP_K` (5)
+  items and `MEMORY_INJECT_MAX_CHARS` (1000) are injected as the
+  second system message. No hit → no memory message at all:
+  unrelated questions are no longer polluted by stored preferences,
+  and the injection bill drops from "the whole file, up to 2000
+  chars, every request" to "only what matched, or nothing".
+- The known new failure mode is a retrieval miss — it looks exactly
+  like "the memory is gone", where the old system's failure was
+  truncation. The probe's reverse case and the score threshold exist
+  to measure it; misses are to be answered by tuning threshold/k,
+  not by loosening checkers.
+- v0.12 guardrail: code untouched. Its three conditions anchor on
+  `read_file` / `write_file` of MEMORY.md, which is still exactly
+  the write path, so the guardrail remains semantically valid as-is
+  — no remapping needed. It has still never fired live (see below).
+- Migration: `scripts/migrate_memory_v014.py` prints a dry-run plan
+  (migrate / pending / skipped; one-line-multi-fact and over-long
+  lines count as pending and are NOT migrated without human review)
+  and `--apply` migrates only the unambiguous items. The live file
+  migrated cleanly: 2 items, 0 pending (full list archived with the
+  version's dev log). Backups of MEMORY.md and the DB were taken
+  first; MEMORY.md itself is byte-identical afterwards (md5
+  8e207be7b9ddd1a04f0a756b16021ab7).
+- Verification, kept in separate ledgers as always. pytest 112
+  passed (103 + 9 new: line splitting/classification, migration
+  plan/apply, sync add/keep/supersede + idempotence, retrieval
+  hit/miss including the reverse case, top-k/budget caps,
+  write-through-approval landing in the item table; two older
+  message-assembly tests were updated to retrieval semantics — a
+  memory only enters the context when the current question actually
+  retrieves it). Mock eval chain 10/10 (mechanism).
+- Write–recall probe (separate from the frozen table; raw record
+  `eval/results/2026-11-07-memory-v2-probe.json`): 3/3 samples —
+  each write passed exactly one approval card, the item landed in
+  the table immediately, and a fresh session answered correctly
+  from the single retrieved item; the reverse case (asking for a
+  quicksort explanation) provably injected nothing (server log
+  line: no retrieval hit, no injection).
+- Frozen 10-task live re-run: 10/10 (real prompt 93,960 incl.
+  embedding 29, completion 2,539, 230.8s; `eval/results/
+  2026-11-07-live.json`). t09 passed under the new retrieval path —
+  its checker is unchanged and asserts the same thing (a fresh
+  session answers the lucky number); only the mechanism feeding
+  that answer changed, whole-file injection → retrieval. t09's
+  seven-round record: fail/pass/pass/fail/pass/pass/pass. The
+  memory guardrail fired 0 times again (the audit log's lifetime
+  total is still 0): its effect size remains unknown and none of
+  this round's passes are credited to it.
+
 ## v0.13.0 — 2026-11-04
 
 MCP tool access, client side: the agent now connects to external
