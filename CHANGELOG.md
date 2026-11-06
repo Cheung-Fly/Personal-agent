@@ -1,5 +1,59 @@
 # Changelog
 
+## v0.14.1 — 2026-11-07
+
+Patch release driven by the project's first external issue
+([Issue #1](https://github.com/Cheung-Fly/Personal-agent/issues/1),
+filed by @mattabate): malformed tool-call arguments crashed the
+agent loop.
+
+- Root cause: both loops parsed tool arguments with a bare
+  `json.loads(call["function"]["arguments"] or "{}")` — in
+  `stream_agent` (streaming) and in `/api/chat` (non-streaming).
+  When the model's output is truncated (e.g. by a token limit) or
+  otherwise malformed, the exception escaped: the streaming
+  generator died with no `done`/`error` event (the user message
+  was already persisted, with no reply), and the non-streaming
+  path returned a 500. A payload that was valid JSON but not an
+  object (array, string, number) would also break `classify` /
+  `run_tool`, which treat args as a dict.
+- Fix: parsing on both paths now goes through `_parse_tool_args`
+  — try/except plus an `isinstance(..., dict)` check; anything
+  else returns `None`. On `None` the tool is NOT executed; the
+  loop appends a `role=tool` failure message keyed to that call's
+  `tool_call_id` ("tool execution failed: arguments are not valid
+  JSON"), writes an audit row (`outcome=bad_arguments`,
+  `level=unknown` — classification never happened), and continues
+  with the remaining calls and rounds, so the model can correct
+  itself and retry. This is the same "feed failures back as text"
+  route the loop already uses for denied tools; the streaming
+  path still reaches its `done` event.
+- Guardrail bookkeeping (v0.12): a call whose arguments failed to
+  parse has no trustworthy args, so `request_calls` records it
+  with an empty dict placeholder. `_is_memory_path({})` is always
+  false, so a malformed `read_file`/`write_file` can neither
+  masquerade as "read/wrote MEMORY.md" nor break the nudge
+  decision — and since the write genuinely never executed, a
+  later plain-text finish can still be nudged exactly once, as
+  before. A dedicated test pins this behaviour.
+- Tests: `tests/test_bad_args.py`, 8 new cases — the parser
+  helper plus both loops, each across all three malformed shapes
+  (invalid string, truncated JSON, valid-but-non-dict). They
+  assert: no exception, loop not interrupted, the failed call
+  receives the failure message under its own `tool_call_id`, a
+  well-formed call in the same round still executes, an audit row
+  is written, and the request finishes normally (200 / `done`).
+  Full suite: pytest 120 passed (112 + 8); mock eval chain 10/10
+  (mechanism).
+- Verification scope: no full-table live re-run for this patch —
+  it changes no behaviour for well-formed arguments (the happy
+  path is byte-for-byte the same code path as v0.14.0) and the
+  failure path is fully covered by deterministic unit tests, so a
+  live table run would only re-measure model sampling. Deployed
+  to the InstaBox demo and smoke-tested live instead: `/health`
+  OK and an ordinary streaming chat completed normally
+  (session → tokens → done).
+
 ## v0.14.0 — 2026-11-07
 
 Long-term memory v2: itemised storage + on-demand retrieval, replacing
