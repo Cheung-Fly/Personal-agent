@@ -158,14 +158,15 @@ def _resolve_context(body: ChatIn, session_id: str) -> list[dict]:
 def _build_messages_with_budget(body: ChatIn, session_id: str) -> tuple[list[dict], dict]:
     """组装发给模型的完整上下文：[system, memory?, *history, user]。
 
-    memory 是第二条 system 消息（v0.4 长期记忆，有 MEMORY.md 才有）；
+    memory 是第二条 system 消息（v0.4 起的长期记忆；v0.14 起改为按
+    本轮问题从条目库检索命中才注入，没命中就没有这条）；
     history 按 _resolve_context 来。组装完过一遍 v0.6 预算截断
     （context.apply_budget），返回 (messages, {"context_tokens": 估算值,
     "dropped_rounds": 本轮丢掉的旧轮数})。/api/chat 与 stream_agent 共用，
     避免两处组装口径漂移。截断只发生在组装时，storage.py 一行不改。
     """
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    memory = memory_system_message()
+    memory = memory_system_message(body.message)
     if memory:
         messages.append(memory)
     messages.extend(_resolve_context(body, session_id))
