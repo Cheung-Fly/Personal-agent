@@ -85,6 +85,29 @@ def _denied_text(tool_name: str, level: str, reason: str, stream: bool) -> str:
             "请在流式对话（/api/chat/stream）里审批通过后重试")
 
 
+# ---------------- v0.14.1：工具参数解析护法（Issue #1） ----------------
+# 模型输出被 token 上限截断等情况下，tool_calls 的 arguments 可能是
+# 坏 JSON（非法字符串 / 截断），甚至合法 JSON 但不是对象（数组、
+# 字符串）——后续 classify / run_tool 都按 dict 用参数，一样会炸。
+# 旧代码在流式与非流式两条循环里裸 json.loads，异常直接逃逸：
+# 流式生成器崩掉（无 done / error 事件，用户消息已落库却没回复），
+# 非流式变 500。解析统一走 _parse_tool_args：成功且是 dict 才算数，
+# 其余一律返回 None，调用方按 BAD_ARGS_TEXT 回喂一条 role=tool 的
+# 失败消息（对齐对应 tool_call_id），不执行该工具、循环继续，模型
+# 可自纠重试——与 _denied_text 同一条“失败文本回喂”路线。
+BAD_ARGS_TEXT = "tool execution failed: arguments are not valid JSON"
+
+
+def _parse_tool_args(raw) -> dict | None:
+    """解析模型给的工具参数 JSON：成功且结果是 dict 返回 dict，
+    坏 JSON / 截断 / 合法但非 dict 都返回 None（绝不抛异常）。"""
+    try:
+        args = json.loads(raw or "{}")
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return None
+    return args if isinstance(args, dict) else None
+
+
 # ---------------- v0.12：长期记忆写入护栏（只挂流式循环） ----------------
 # t09 四轮 live 样本（败/过/过/败）证明：模型读完 MEMORY.md、用户也
 # 明说要写入时，仍可能以纯文本收尾，write_file 根本没发出——丢的不是
@@ -266,7 +289,17 @@ async def chat(body: ChatIn, x_access_token: str = Header(default="")):
                     "embedding_usage": take_embedding_usage(session_id)}
         for call in tool_calls:
             name = call["function"]["name"]
-            args = json.loads(call["function"]["arguments"] or "{}")
+            args = _parse_tool_args(call["function"].get("arguments"))
+            if args is None:
+                # v0.14.1（Issue #1）：参数坏了就不执行，按 tool_call_id
+                # 回喂失败文本让模型自纠，别让异常把请求打成 500。
+                result = BAD_ARGS_TEXT
+                log_audit(session_id=session_id, tool=name, args={}, level="unknown",
+                          outcome="bad_arguments", result_summary=result)
+                tool_log.append({"tool": name, "args": {}, "result": result[:500]})
+                messages.append({"role": "tool", "tool_call_id": call["id"],
+                                 "content": result})
+                continue
             # v0.5：非流式一次 HTTP 请求走完整个循环，等不起人点卡，
             # 所以中 / 高风险调用直接按拒绝回喂（并说明流式下可审批）。
             level, reason = classify(name, args, WORKSPACE)
@@ -406,7 +439,26 @@ async def stream_agent(body: ChatIn, session_id: str):
             return
         for call in tool_calls:
             name = call["function"]["name"]
-            args = json.loads(call["function"]["arguments"] or "{}")
+            args = _parse_tool_args(call["function"].get("arguments"))
+            if args is None:
+                # v0.14.1（Issue #1）：参数坏了就不执行，回喂失败文本、
+                # 照常发 tool_result 事件、最终照常走到 done，别崩
+                # 生成器（旧行为：无 done/error 事件、用户消息已落库
+                # 却没回复）。
+                # 护栏账本（request_calls）：没有合法 args 就记空 dict
+                # 占位——_is_memory_path 对空 dict 恒 False，坏参数的
+                # read/write 既不会被误记成“读过/写过 MEMORY.md”，
+                # 也不会让判定出错；且写入根本没执行，后续若纯文本
+                # 收尾，护栏仍可正常推一次。
+                request_calls.append((name, {}))
+                result = BAD_ARGS_TEXT
+                log_audit(session_id=session_id, tool=name, args={}, level="unknown",
+                          outcome="bad_arguments", result_summary=result)
+                yield _sse({"type": "tool_result", "tool": name,
+                            "result": result[:500]})
+                messages.append({"role": "tool", "tool_call_id": call["id"],
+                                 "content": result})
+                continue
             request_calls.append((name, args))  # v0.12：护栏判定用（发过即算）
             level, reason = classify(name, args, WORKSPACE)
             if level == HIGH:
