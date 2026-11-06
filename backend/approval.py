@@ -233,7 +233,7 @@ def log_audit(*, session_id: str, tool: str, args: dict, level: str, outcome: st
         "tool": tool,
         "args": json.dumps(args, ensure_ascii=False)[:500],
         "level": level,
-        "outcome": outcome,  # auto / approved / denied / timeout / high_denied / needs_approval
+        "outcome": outcome,  # auto / approved / denied / timeout / high_denied / needs_approval / bad_arguments（v0.14.1，参数解析失败未执行，level 记 unknown）
         "result": (result_summary or "")[:200],
     }
     try:
