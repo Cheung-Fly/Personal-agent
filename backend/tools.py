@@ -126,6 +126,19 @@ def run_tool(name: str, args: dict, approved: bool = False,
                 return "工具执行失败: 长期记忆 MEMORY.md 请手动编辑，或在流式对话里经审批通过后改写（v0.5 审批卡）"
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(args["content"], encoding="utf-8")
+            if p == WORKSPACE / "MEMORY.md":
+                # v0.14：文件仍是写入落点，但事实的权威存储是条目表；
+                # 落盘后立刻增量同步（新行进表、消失行 superseded），
+                # 下一轮检索注入读的就是新条目。同步失败不回滚写入：
+                # 注入路径还有一层哈希兜底同步（memory.ensure_memory_synced）。
+                # 延迟导入避免与 memory.py（它 import 本模块的 WORKSPACE）循环。
+                try:
+                    from .memory import sync_memory_from_file
+                    stats = sync_memory_from_file(source="conversation")
+                    print(f"[memory] 审批写入后同步条目：新增 {stats['added']}、"
+                          f"取代 {stats['superseded']}、保留 {stats['kept']}")
+                except Exception as e:
+                    print(f"[memory] 写入后同步条目失败（注入时兜底）: {e}")
             return f"已写入 {args['path']} ({len(args['content'])} 字符)"
         if name == "exec_command":
             r = subprocess.run(
