@@ -145,20 +145,22 @@ def test_build_messages_with_budget(monkeypatch):
 
 
 def test_build_messages_with_budget_keeps_memory(monkeypatch, tmp_path):
-    # 预算 100：5 轮 history 约 110 token + memory 约 48 token（含 header），
-    # 不计 memory 只丢 1 轮，计入 memory 要丢 3 轮——memory 参与计数但永不丢。
+    # v0.14 口径：记忆先按本轮问题检索命中才注入；注入后与 v0.6 一样
+    # 参与预算计数但永不丢。本轮问题与记忆条目相关（“简洁”），命中。
+    # 预算 100：history + memory 超了就从最旧轮次丢，memory 必须留下。
     monkeypatch.setattr("backend.context.CONTEXT_TOKEN_BUDGET", 100)
     monkeypatch.setattr("backend.memory.WORKSPACE", tmp_path)
-    (tmp_path / "MEMORY.md").write_text("偏好：回复简洁。", encoding="utf-8")
+    monkeypatch.setenv("DATA_DIR", str(tmp_path / "data"))
+    (tmp_path / "MEMORY.md").write_text("- 偏好：回复简洁直接。", encoding="utf-8")
     from backend.main import ChatIn, _build_messages_with_budget
 
-    body = ChatIn(message="现在", history=_history(5))
+    body = ChatIn(message="请回复得简洁直接一点", history=_history(5))
     msgs, stats = _build_messages_with_budget(body, "unused-session-id")
-    assert msgs[1]["role"] == "system" and "偏好：回复简洁。" in msgs[1]["content"]
-    assert stats["dropped_rounds"] == 3
+    assert msgs[1]["role"] == "system" and "偏好：回复简洁直接。" in msgs[1]["content"]
+    assert stats["dropped_rounds"] >= 1  # 预算确实触发了丢弃
     assert stats["context_tokens"] == message_tokens(msgs[1]) + sum(
         message_tokens(m) for m in msgs[2:-1])
-    assert msgs[-1]["content"] == "现在"
+    assert msgs[-1]["content"] == "请回复得简洁直接一点"
 
 
 def test_build_messages_default_budget_no_drop(monkeypatch):
