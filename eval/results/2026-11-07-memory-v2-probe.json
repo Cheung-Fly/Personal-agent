@@ -1,0 +1,105 @@
+{
+  "probe": "v0.14-memory-v2",
+  "samples": [
+    {
+      "sample": 1,
+      "fact": "我养的猫叫年糕。",
+      "question": "我养的猫叫什么名字？",
+      "write_approvals": 1,
+      "write_tools": [
+        "read_file",
+        "write_file"
+      ],
+      "write_reply": "已写入 MEMORY.md，新增了「我养的猫叫年糕。」这条偏好。下次对话生效，我会记住你家猫咪叫年糕 🐱",
+      "item_landed": true,
+      "active_items_after_write": [
+        "回复默认用中文，简洁直接。",
+        "项目用 FastAPI + 智谱 GLM-4.6。",
+        "我养的猫叫年糕。"
+      ],
+      "recall_reply": "根据我的记忆，你养的猫叫**年糕** 🐱",
+      "recalled": true,
+      "usage": {
+        "prompt_tokens": 801,
+        "completion_tokens": 48,
+        "total_tokens": 849,
+        "source": "api"
+      }
+    },
+    {
+      "sample": 2,
+      "fact": "我的幸运数字是 2468。",
+      "question": "我的幸运数字是多少？",
+      "write_approvals": 1,
+      "write_tools": [
+        "read_file",
+        "write_file"
+      ],
+      "write_reply": "已写入 MEMORY.md，新增了一条：**我的幸运数字是 2468。** 下次对话起这条偏好会自动注入上下文生效。",
+      "item_landed": true,
+      "active_items_after_write": [
+        "回复默认用中文，简洁直接。",
+        "项目用 FastAPI + 智谱 GLM-4.6。",
+        "我养的猫叫年糕。",
+        "我的幸运数字是 2468。"
+      ],
+      "recall_reply": "根据您的长期记忆，您的幸运数字是 **2468**。",
+      "recalled": true,
+      "usage": {
+        "prompt_tokens": 801,
+        "completion_tokens": 45,
+        "total_tokens": 846,
+        "source": "api"
+      }
+    },
+    {
+      "sample": 3,
+      "fact": "我家在成都。",
+      "question": "我家在哪个城市？",
+      "write_approvals": 1,
+      "write_tools": [
+        "read_file",
+        "write_file"
+      ],
+      "write_reply": "已写入 `MEMORY.md`，新增了一条：**我家在成都。** 下次对话起就会自动生效。",
+      "item_landed": true,
+      "active_items_after_write": [
+        "回复默认用中文，简洁直接。",
+        "项目用 FastAPI + 智谱 GLM-4.6。",
+        "我养的猫叫年糕。",
+        "我的幸运数字是 2468。",
+        "我家在成都。"
+      ],
+      "recall_reply": "根据记忆库中的记录，你家在**成都**。🏙️",
+      "recalled": true,
+      "usage": {
+        "prompt_tokens": 797,
+        "completion_tokens": 49,
+        "total_tokens": 846,
+        "source": "api"
+      }
+    }
+  ],
+  "guardrail_before": 0,
+  "reverse_case": {
+    "question": "请解释一下快速排序的原理。",
+    "reply_head": "# 快速排序（Quick Sort）原理\n\n快速排序是一种**分治法（Divide and Conquer）**的经典排序算法，由 Tony Hoare 于 1959 年提出。其核心思想可以概括为三步：\n\n---\n\n## 1. 选基准（Pivot）\n\n从数组中选择一个元素作为**基准值（pivot）**。选择策略有多种：\n\n| 策略 | 说明 |\n|------|------|\n| 选首元素 | ",
+    "note": "注入与否以服务端 [memory] 日志为准（见 archive 的 log_excerpt）",
+    "injected": false,
+    "evidence": "服务端日志行：[memory] 本轮检索无命中，不注入（query 前 30 字：请解释一下快速排序的原理。）"
+  },
+  "guardrail_after": 0,
+  "passed_samples": 3,
+  "log_excerpt": [
+    "[memory] 本轮检索无命中，不注入（query 前 30 字：'请把这条偏好写进我的长期记忆（写进 MEMORY.md）：我'）",
+    "[memory] 审批写入后同步条目：新增 1、取代 0、保留 2",
+    "[memory] 本轮检索注入 1 条长期记忆",
+    "[memory] 本轮检索无命中，不注入（query 前 30 字：'请把这条偏好写进我的长期记忆（写进 MEMORY.md）：我'）",
+    "[memory] 审批写入后同步条目：新增 1、取代 0、保留 3",
+    "[memory] 本轮检索注入 1 条长期记忆",
+    "[memory] 本轮检索无命中，不注入（query 前 30 字：'请把这条偏好写进我的长期记忆（写进 MEMORY.md）：我'）",
+    "[memory] 审批写入后同步条目：新增 1、取代 0、保留 4",
+    "[memory] 本轮检索注入 1 条长期记忆",
+    "[memory] 本轮检索无命中，不注入（query 前 30 字：'请解释一下快速排序的原理。'）"
+  ]
+}
